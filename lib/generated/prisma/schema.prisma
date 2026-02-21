@@ -1,0 +1,570 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider               = "prisma-client-js"
+  output                 = "../lib/generated/prisma"
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//=======
+//ENUMS
+//======
+
+//User Enum
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+  GUEST
+}
+
+enum UserStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  ARCHIVED
+}
+
+//Content Enum
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ArticleCategory {
+  ENERGI
+  NON_ENERGI
+  UMUM
+}
+
+enum AcademicType {
+  LOMBA
+  BEASISWA
+  INFO_KAMPUS
+}
+
+//Enum Event
+enum AttendanceStatus {
+  ABSEN //User Tidak Mengikuti Event
+  REGISTERED // User daftar event
+  ATTENDING // User tekan "Mengikuti"
+  ATTENDED // User upload bukti (verified)
+  REJECTED // Bukti ditolak admin
+  CANCELLED // User cancel
+}
+
+//=====
+//MODELS 
+//=====
+
+//=====
+//User
+//====
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  sessions Session[]
+  accounts Account[]
+
+  //Role dan Status
+  role   Role       @default(GUEST)
+  status UserStatus @default(PENDING)
+
+  //Informasi Spesifik
+  nim        String? @unique
+  generation Int?
+  major      String?
+
+  //Moderation
+  banned     Boolean   @default(false)
+  banReason  String?
+  banExpires DateTime?
+
+  //Relations
+  articles         Article[]
+  events           Event[]
+  academicInfos    AcademicInfo[]
+  comments         Comment[]
+  reactions        Reaction[]
+  bookmarks        Bookmark[]
+  notifications    Notification[]
+  adminLogs        AdminLog[]
+  reviewedArticles Article[]      @relation("ArticleReviewer")
+
+  //Event Attendance
+  eventAttendances    EventAttendance[]
+  verifiedAttendances EventAttendance[] @relation("AttendanceVerifier")
+
+  @@index([nim])
+  @@index([role, status])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ipAddress      String?
+  userAgent      String? @db.Text
+  ImpersonatedBy String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("session")
+}
+
+model Account {
+  id         String @id @default(cuid())
+  accountId  String
+  providerId String
+  userId     String
+
+  //OAuth
+  accessToken           String?   @db.Text
+  refreshToken          String?   @db.Text
+  idToken               String?   @db.Text
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@index([value])
+  @@map("verifications")
+}
+
+//======
+//Content Model
+//======
+model Article {
+  id         String  @id @default(cuid())
+  title      String
+  slug       String  @unique
+  content    String  @db.Text
+  excerpt    String  @db.Text
+  coverImage String?
+
+  category ArticleCategory @default(UMUM)
+  status   ContentStatus   @default(DRAFT)
+
+  publishedAt DateTime?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  reviewerId  String?
+  reviewer    User?     @relation("ArticleReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  reviewedAt  DateTime?
+  reviewNotes String?   @db.Text
+
+  //Search Engine Optimization
+  metaTitle       String?
+  metaDescription String?  @db.Text
+  keywords        String[]
+
+  views    Int  @default(0)
+  readTime Int?
+
+  comments  Comment[]
+  reactions Reaction[]
+  bookmarks Bookmark[]
+  tags      ArticleTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([reviewerId])
+  @@index([status, publishedAt])
+  @@index([category])
+  @@map("articles")
+}
+
+model Event {
+  id          String  @id @default(cuid())
+  title       String
+  slug        String  @unique
+  description String  @db.Text
+  coverImage  String?
+
+  startDate            DateTime
+  endDate              DateTime?
+  location             String?
+  locationType         String? // "ONLINE", "OFFLINE", "HYBRID"
+  registrationLink     String?
+  registrationDeadline DateTime?
+  maxParticipants      Int?
+  currentParticipants  Int       @default(0)
+
+  status      ContentStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  organizerId String
+  organizer   User   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+
+  contactPerson String?
+  contactEmail  String?
+  contactPhone  String?
+
+  views Int @default(0)
+
+  comments  Comment[]
+  reactions Reaction[]
+  bookmarks Bookmark[]
+  tags      EventTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendances      EventAttendance[]
+  requireProof     Boolean           @default(true) // Require photo proof?
+  autoVerify       Boolean           @default(false) // Auto verify or need admin approval?
+  maxProofsPerUser Int               @default(3) // Max photos per user
+
+  @@index([slug])
+  @@index([organizerId])
+  @@index([status, publishedAt])
+  @@index([startDate])
+  @@map("events")
+}
+
+model EventAttendance {
+  id     String           @id @default(cuid())
+  status AttendanceStatus @default(ABSEN)
+
+  registeredAt DateTime  @default(now())
+  attendingAt  DateTime?
+  attendedAt   DateTime?
+  verifiedAt   DateTime?
+  cancelledAt  DateTime?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  proofs AttendanceProof[]
+
+  verifiedById      String?
+  verifiedBy        User?   @relation("AttendanceVerifier", fields: [verifiedById], references: [id], onDelete: SetNull)
+  verificationNotes String? @db.Text
+
+  @@unique([userId, eventId]) // User cuma bisa register 1x per event
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+  @@map("event_attendances")
+}
+
+model AttendanceProof {
+  id String @id @default(cuid())
+
+  // Cloudinary data
+  publicId     String // Cloudinary public_id (untuk delete)
+  url          String // Cloudinary secure_url (untuk display)
+  thumbnailUrl String? // Cloudinary thumbnail (untuk preview)
+  format       String? // jpg, png, etc
+  width        Int?
+  height       Int?
+  fileSize     Int? // bytes
+
+  caption String? @db.Text
+
+  // Upload metadata
+  uploadedAt DateTime @default(now())
+
+  // Relations
+  attendanceId String
+  attendance   EventAttendance @relation(fields: [attendanceId], references: [id], onDelete: Cascade)
+
+  @@index([attendanceId])
+  @@map("attendance_proofs")
+}
+
+model AcademicInfo {
+  id          String  @id @default(cuid())
+  title       String
+  slug        String  @unique
+  description String  @db.Text
+  coverImage  String?
+
+  type   AcademicType
+  status ContentStatus @default(DRAFT)
+
+  driveLink    String?
+  externalLink String?
+  attachments  String[]
+
+  deadline     DateTime?
+  requirements String?   @db.Text
+  prizes       String?   @db.Text // For lomba
+  benefits     String?   @db.Text // For beasiswa
+
+  contactPerson String?
+  contactEmail  String?
+  contactPhone  String?
+
+  publishedAt DateTime?
+
+  createdById String
+  createdBy   User   @relation(fields: [createdById], references: [id], onDelete: Cascade)
+
+  views  Int @default(0)
+  clicks Int @default(0) // Track external link klik
+
+  comments  Comment[]
+  reactions Reaction[]
+  bookmarks Bookmark[]
+  tags      AcademicTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([type])
+  @@index([createdById])
+  @@index([status, publishedAt])
+  @@index([deadline])
+  @@map("academic_infos")
+}
+
+//======
+//Tanggig
+//======
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+
+  articles      ArticleTag[]
+  events        EventTag[]
+  academicInfos AcademicTag[]
+
+  @@map("tags")
+}
+
+model ArticleTag {
+  articleId String
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  tagId String
+  tag   Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([articleId, tagId])
+  @@map("article_tags")
+}
+
+model EventTag {
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  tagId String
+  tag   Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, tagId])
+  @@map("event_tags")
+}
+
+model AcademicTag {
+  academicInfoId String
+  academicInfo   AcademicInfo @relation(fields: [academicInfoId], references: [id], onDelete: Cascade)
+
+  tagId String
+  tag   Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([academicInfoId, tagId])
+  @@map("academic_tags")
+}
+
+//=====
+//Engagment System
+//=====
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  academicInfoId String?
+  academicInfo   AcademicInfo? @relation(fields: [academicInfoId], references: [id], onDelete: Cascade)
+
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  approved Boolean @default(true)
+  reported Boolean @default(false)
+
+  @@index([userId])
+  @@index([articleId])
+  @@index([eventId])
+  @@index([academicInfoId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+model Reaction {
+  id        String   @id @default(cuid())
+  type      String // "LIKE", "LOVE", "INSIGHTFUL", etc
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  academicInfoId String?
+  academicInfo   AcademicInfo? @relation(fields: [academicInfoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId, type])
+  @@unique([userId, eventId, type])
+  @@unique([userId, academicInfoId, type])
+  @@index([userId])
+  @@map("reactions")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  articleId String?
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  eventId String?
+  event   Event?  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  academicInfoId String?
+  academicInfo   AcademicInfo? @relation(fields: [academicInfoId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, articleId])
+  @@unique([userId, eventId])
+  @@unique([userId, academicInfoId])
+  @@index([userId])
+  @@map("bookmarks")
+}
+
+// =====================
+// NOTIFICATION SYSTEM
+// ====================
+model Notification {
+  id        String   @id @default(cuid())
+  type      String // "COMMENT", "REACTION", "ARTICLE_PUBLISHED", etc
+  title     String
+  message   String   @db.Text
+  link      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ================
+// ADMIN & AUDIT
+// ================
+model AdminLog {
+  id       String  @id @default(cuid())
+  action   String // "CREATE", "UPDATE", "DELETE", "APPROVE", "REJECT"
+  entity   String // "User", "Article", "Event", "AcademicInfo"
+  entityId String?
+  details  String? @db.Text
+
+  // IP & User Agent for security
+  ipAddress String?
+  userAgent String? @db.Text
+
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("admin_logs")
+}
+
+// =====================
+// ANALYTICS (Optional, 
+// =====================
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  ipAddress String?
+  userAgent String?  @db.Text
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  userId String?
+
+  @@index([path])
+  @@index([createdAt])
+  @@map("page_views")
+}
