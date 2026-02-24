@@ -1,23 +1,18 @@
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { HeroSection } from "./_components/hero-section";
+import { Skeleton } from "@/components/ui/skeleton";
 
-/**
- * Root page — redirects logged-in users to their role-specific dashboard.
- * Non-logged-in users are redirected to /login by middleware.
- */
-export default async function HomePage() {
-  const session = await auth();
+function EventSkeleton() {
+  return (
+    <div className="w-full py-24 bg-background container mx-auto px-4">
+      <Skeleton className="h-[125px] rounded-[2.5rem] w-full" />
+    </div>
+  );
+}
 
-  if (!session?.user) {
-    redirect("/login");
-  }
-
-  const role = session.user.role;
-
-  if (role === "SUPER_ADMIN" || role === "ADMIN") {
-    redirect("/admin");
-  }
-
-  // Regular users and guests go to user dashboard
-  redirect("/dashboard");
+export default function LandingPage() {
+  return (
+    <div className="flex flex-col w-full selection:bg-primary/30">
+      <HeroSection />
+    </div>
+  );
 }

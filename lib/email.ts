@@ -1,17 +1,40 @@
 import nodemailer from "nodemailer";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import dns from "dns";
+import util from "util";
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: false,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-});
+const lookupAsync = util.promisify(dns.lookup);
+
+/**
+ * Creates dynamic transporter to workaround a Node.js issue where raw UDP DNS queries
+ * (queryA) to smtp.gmail.com time out on certain network configs, even though standard OS
+ * DNS lookup works. Resolves the IP first and connects directly.
+ */
+async function getTransporter() {
+  const defaultHost = process.env.SMTP_HOST || "smtp.gmail.com";
+  let host = defaultHost;
+
+  try {
+    const { address } = await lookupAsync(defaultHost);
+    host = address;
+  } catch (err) {
+    console.warn("SMTP DNS lookup failed, falling back to original host", err);
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port: parseInt(process.env.SMTP_PORT || "587"),
+    secure: process.env.SMTP_PORT === "465",
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
+    tls: {
+      servername: defaultHost, // Crucial for TLS certificate validation when using an IP
+    },
+  });
+}
 
 /**
  * Generate a verification token and store it in the database.
@@ -49,6 +72,8 @@ export async function sendVerificationEmail(
 ): Promise<void> {
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
+
+  const transporter = await getTransporter();
 
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,

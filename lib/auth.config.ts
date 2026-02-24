@@ -35,9 +35,14 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
       const pathname = nextUrl.pathname;
 
-      // Public routes — always accessible
-      const publicRoutes = ["/login", "/register", "/verify-email"];
-      const isPublicRoute = publicRoutes.includes(pathname);
+      // Public routes — always accessible (guests + users)
+      const publicRoutes = ["/login", "/register", "/verify-email", "/"];
+      const isPublicRoute =
+        publicRoutes.includes(pathname) ||
+        pathname.startsWith("/articles") ||
+        pathname.startsWith("/events") ||
+        pathname.startsWith("/academic") ||
+        pathname.startsWith("/profile");
       const isAuthApi = pathname.startsWith("/api/auth");
 
       if (isPublicRoute || isAuthApi) {
@@ -45,6 +50,15 @@ export const authConfig: NextAuthConfig = {
         if (isLoggedIn && (pathname === "/login" || pathname === "/register")) {
           return Response.redirect(new URL("/", nextUrl));
         }
+
+        // Auto-redirect Admins checking out the landing page ("/") straight back to their dashboard ("/admin")
+        if (isLoggedIn && pathname === "/") {
+          const role = auth?.user?.role;
+          if (role === "SUPER_ADMIN" || role === "ADMIN") {
+            return Response.redirect(new URL("/admin", nextUrl));
+          }
+        }
+
         return true;
       }
 

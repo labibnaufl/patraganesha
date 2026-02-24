@@ -1,13 +1,18 @@
+import { MainHeader } from "@/components/layout/main-header";
+import { MainFooter } from "@/components/layout/main-footer";
+
 export default function MainLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Navbar will be added in Phase 3 */}
-      <main className="flex-1">{children}</main>
-      {/* Footer will be added in Phase 3 */}
+    <div className="min-h-screen flex flex-col font-sans">
+      <MainHeader />
+      <main className="flex-1 w-full flex flex-col items-center">
+        {children}
+      </main>
+      <MainFooter />
     </div>
   );
 }

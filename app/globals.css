@@ -39,11 +39,20 @@
   --color-danger: #f87171;
   --color-warning: #fbbf24;
 
+  /* Brand Extension */
+  --color-brand-primary: #fd7a1b;
+  --color-brand-hover: #e06912;
+
   /* Legacy compat */
   --color-background: var(--color-surface-950);
   --color-foreground: #ededed;
   --font-sans: var(--font-body);
   --font-mono: "Geist Mono", monospace;
+}
+
+@utility text-patra-stroke {
+  -webkit-text-stroke: 4px var(--color-brand-primary);
+  paint-order: stroke fill;
 }
 
 /* Base Styles */

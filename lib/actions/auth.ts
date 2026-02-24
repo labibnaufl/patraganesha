@@ -107,7 +107,7 @@ export async function registerAction(
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // Create user with GUEST role + PENDING status
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         name,
         email: email.toLowerCase(),
@@ -122,8 +122,22 @@ export async function registerAction(
     });
 
     // Generate and send verification email
-    const token = await generateVerificationToken(email.toLowerCase());
-    await sendVerificationEmail(email.toLowerCase(), token);
+    try {
+      const token = await generateVerificationToken(email.toLowerCase());
+      await sendVerificationEmail(email.toLowerCase(), token);
+    } catch (emailError) {
+      console.error("Failed to send verification email:", emailError);
+
+      // Rollback user creation since they won't be able to verify their email
+      await prisma.user.delete({
+        where: { id: newUser.id },
+      });
+
+      return {
+        error:
+          "Gagal mengirim email verifikasi karena masalah server. Silakan coba lagi nanti.",
+      };
+    }
 
     return { success: true };
   } catch (error) {
