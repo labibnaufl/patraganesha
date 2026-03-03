@@ -29,7 +29,7 @@ export function SocialSection() {
               className="pt-8 w-full sm:w-auto"
             >
               <Link
-                href="https://www.youtube.com/watch?v=oeY6U3l0nOo"
+                href="https://linktr.ee/mediahmtmpatraitb"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="relative inline-flex items-center justify-center whitespace-nowrap text-base md:text-lg font-bold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black min-h-16 h-16 md:min-h-20 md:h-20 rounded-full bg-black text-white hover:bg-white/90 group w-full sm:w-87.5 overflow-hidden"

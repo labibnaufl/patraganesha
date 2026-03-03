@@ -21,7 +21,11 @@ export function IntroSection() {
             </h2>
           </ScrollReveal>
 
-          <ScrollReveal delay={0.4} direction="up" className="pt-8">
+          <ScrollReveal
+            delay={0.4}
+            direction="up"
+            className="pt-8 w-full sm:w-auto"
+          >
             <Link
               href="/profile"
               className="relative inline-flex items-center justify-center whitespace-nowrap text-base md:text-lg font-bold transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black min-h-16 h-16 md:min-h-20 md:h-20 rounded-full bg-black text-white hover:bg-white group w-full sm:w-[350px] overflow-hidden"
