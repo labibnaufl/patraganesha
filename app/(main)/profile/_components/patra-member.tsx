@@ -19,45 +19,52 @@ interface Member {
 
 const members: Member[] = [
   {
+    name: "Al Farrel Putra R.",
+    role: "Ketua Badan Pengurus",
+    image: "/images/Badan Pengurus/Ketua/DSC_0014.jpg",
+    className: "absolute top-16 left-[12%] rotate-[-6deg]",
+    needsRotation: true,
+  },
+  {
     name: "Biro Sumber Daya Anggota",
     role: "Biro",
     image: "/images/Badan Pengurus/Biro Sumber Daya Anggota/DSC_0397.jpg",
-    className: "absolute top-16 left-[12%] rotate-[-6deg]",
+    className: "absolute top-8 left-[28%] rotate-[5deg]",
     needsRotation: true,
   },
   {
     name: "Khansa Uwais Savano",
     role: "Biro Riset Kontrol dan Pengembangan Organisasi",
     image: "/images/Badan Pengurus/BRKPO/DSC_0233.jpg",
-    className: "absolute top-8 left-[28%] rotate-[5deg]",
+    className: "absolute top-28 left-[43%] rotate-[-4deg]",
     needsRotation: true,
   },
   {
     name: "Rainy Larasati Putri S, Iman Raditya Wira A, Adhara Salsabila",
     role: "Departemen Eksternal",
     image: "/images/Badan Pengurus/Departemen Eksternal/0041.jpg",
-    className: "absolute top-28 left-[43%] rotate-[-4deg]",
+    className: "absolute top-12 left-[58%] rotate-[8deg]",
     needsRotation: false, // already portrait
   },
   {
     name: "Raditya Zidane K, Adiib Fathoni A, M. Irfan Abdunnafi, Maura Salsabila",
     role: "Departemen Internal",
     image: "/images/Badan Pengurus/Internal/DSC_0218.jpg",
-    className: "absolute top-12 left-[58%] rotate-[8deg]",
+    className: "absolute top-36 right-[18%] rotate-[-3deg]",
     needsRotation: true,
   },
   {
     name: "Zulaydi Awwab, Adit Ghazi Algafari, Hanif Rizqi Satrio T.",
     role: "Departemen Kajian",
     image: "/images/Badan Pengurus/Kajian/DSC_0297.jpg",
-    className: "absolute top-36 right-[18%] rotate-[-3deg]",
+    className: "absolute top-4 right-[30%] rotate-[6deg]",
     needsRotation: true,
   },
   {
     name: "Felix Marco Efendi, M. Dzulfadli Azhim, Miftah Daris Ilmi A, M. Dafin Putra Rustandi",
     role: "Departemenm Eskalasi Potensi dan Karya",
     image: "/images/Badan Pengurus/Karya/DSC_0315.jpg",
-    className: "absolute top-4 right-[30%] rotate-[6deg]",
+    className: "absolute top-24 left-[35%] rotate-[-9deg]",
     needsRotation: true,
   },
   {
@@ -79,13 +86,6 @@ const members: Member[] = [
     role: "Departemen Media Komunikasi dan Informasi",
     image: "/images/Badan Pengurus/Medkominfo/Medkominfo.png",
     className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Al Farrel Putra R.",
-    role: "Ketua Badan Pengurus",
-    image: "/images/Badan Pengurus/Ketua/DSC_0014.jpg",
-    className: "absolute top-16 left-[12%] rotate-[-6deg]",
     needsRotation: true,
   },
 ];
@@ -141,8 +141,10 @@ export function PatraMembers() {
             <span className="text-brand-primary">PATRA Ganesha.</span>
           </h2>
           <p className="mt-4 text-slate-500 text-lg max-w-2xl">
-            Seret kartu untuk berinteraksi. Kenali para pengurus yang
-            berdedikasi membangun himpunan.
+            <span className="hidden sm:inline">
+              Seret kartu untuk berinteraksi.{" "}
+            </span>
+            Kenali para pengurus yang berdedikasi membangun himpunan.
           </p>
         </motion.div>
       </div>

@@ -114,8 +114,10 @@ export function PatraMembersKesenatoran() {
             <span className="text-brand-primary">PATRA Ganesha.</span>
           </h2>
           <p className="mt-4 text-slate-500 text-lg max-w-2xl">
-            Seret kartu untuk berinteraksi. Kenali para pengurus yang
-            berdedikasi membangun himpunan.
+            <span className="hidden sm:inline">
+              Seret kartu untuk berinteraksi.{" "}
+            </span>
+            Kenali para pengurus yang berdedikasi membangun himpunan.
           </p>
         </motion.div>
       </div>

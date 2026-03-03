@@ -14,7 +14,7 @@ export function IntroSection() {
           </ScrollReveal>
 
           <ScrollReveal delay={0.2} direction="left">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight w-full mb-2 leading-snug">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight w-full mb-2 leading-tight pt-2">
               PATRA Ganesha menjadi ruang bertumbuh untuk berkarya,
               berkolaborasi, dan mendokumentasikan setiap perjalanan organisasi
               dari masa ke masa.

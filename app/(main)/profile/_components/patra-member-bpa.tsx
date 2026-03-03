@@ -118,14 +118,47 @@ export function PatraMembersBPA() {
             <span className="text-brand-primary">PATRA Ganesha.</span>
           </h2>
           <p className="mt-4 text-slate-500 text-lg max-w-2xl">
-            Seret kartu untuk berinteraksi. Kenali para pengurus yang
-            berdedikasi membangun himpunan.
+            <span className="hidden sm:inline">
+              Seret kartu untuk berinteraksi.{" "}
+            </span>
+            Kenali para pengurus yang berdedikasi membangun himpunan.
           </p>
         </motion.div>
       </div>
 
-      {/* Draggable Cards */}
-      <DraggableCardContainer className="relative flex min-h-[600px] w-full items-center justify-center overflow-clip">
+      {/* Mobile fallback: static 2-col grid (hidden on sm+) */}
+      <div className="sm:hidden container mx-auto px-4 grid grid-cols-2 gap-4">
+        {members.map((member, index) => (
+          <div
+            key={index}
+            className="flex flex-col rounded-2xl overflow-hidden bg-white shadow-md border border-border/40"
+          >
+            <div className="relative w-full aspect-3/4 bg-slate-100 overflow-hidden">
+              {member.needsRotation ? (
+                <LandscapeToPortrait src={member.image} alt={member.name} />
+              ) : (
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  unoptimized
+                  className="object-cover object-top"
+                  style={{ imageOrientation: "from-image" }}
+                />
+              )}
+            </div>
+            <div className="p-3">
+              <h3 className="text-sm font-bold text-neutral-700 leading-tight">
+                {member.name}
+              </h3>
+              <p className="text-xs text-neutral-400 mt-1">{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Draggable Cards — hidden on mobile, shown on sm+ */}
+      <DraggableCardContainer className="hidden sm:flex relative min-h-[600px] w-full items-center justify-center overflow-clip">
         <p className="pointer-events-none absolute top-1/2 mx-auto max-w-xs -translate-y-3/4 text-center text-2xl font-black text-orange-200 md:text-3xl dark:text-neutral-800 select-none">
           Wajah di Setiap Langkah PATRA Ganesha.
         </p>
