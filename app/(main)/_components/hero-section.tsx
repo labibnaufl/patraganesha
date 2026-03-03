@@ -54,7 +54,7 @@ export async function HeroSection() {
       </div>
 
       {/* Hero Content Layer (First Curtain) */}
-      <div className="relative z-10 w-full min-h-screen bg-white flex flex-col justify-center pb-32 sm:pb-44 lg:pb-64 shadow-[0_20px_50px_rgba(0,0,0,0.15)] pt-24 md:pt-28">
+      <div className="relative z-10 w-full min-h-screen bg-white flex flex-col justify-center pb-20 sm:pb-32 md:pb-44 lg:pb-64 shadow-[0_20px_50px_rgba(0,0,0,0.15)] pt-24 md:pt-28">
         <div className="container mx-auto px-4 sm:px-6 md:px-8">
           {/* SVG Mask Effect with CTA Buttons */}
           <div className="w-full">

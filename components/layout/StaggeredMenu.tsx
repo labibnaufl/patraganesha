@@ -207,7 +207,9 @@ const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
             duration: 0.45,
             ease: "power3.out",
             stagger: { each: 0.07 },
-            onComplete: () => gsap.set(socialLinks, { clearProps: "opacity" }),
+            onComplete: () => {
+              gsap.set(socialLinks, { clearProps: "opacity" });
+            },
           },
           socialsStart + 0.04,
         );

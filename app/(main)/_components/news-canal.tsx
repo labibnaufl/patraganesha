@@ -50,7 +50,7 @@ export async function NewsCanal() {
               href={`/articles/${article.slug}`}
               className="group flex flex-col md:flex-row gap-6 bg-muted/20 border border-border/50 rounded-3xl p-4 hover:bg-muted/40 transition-colors"
             >
-              <div className="relative w-full md:w-48 h-48 rounded-2xl overflow-hidden shrink-0 bg-muted">
+              <div className="relative w-full md:w-48 h-48 min-h-45 rounded-2xl overflow-hidden shrink-0 bg-muted">
                 {article.coverImage ? (
                   <Image
                     src={article.coverImage}
