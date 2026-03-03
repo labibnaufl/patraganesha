@@ -93,7 +93,10 @@ export function EventRegistrationBox({
   const StatusIcon = statusConfig.icon;
 
   const isRegistered =
-    status === "REGISTERED" || status === "ATTENDING" || status === "ATTENDED";
+    status === "REGISTERED" ||
+    status === "ATTENDING" ||
+    status === "ATTENDED" ||
+    status === "REJECTED";
 
   function handleRegister() {
     setError(null);
