@@ -35,7 +35,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
               "dan menjaga integritas",
               "PATRA Ganesha",
             ]}
-            lineClassNames={["", "","text-brand-primary"]}
+            lineClassNames={["", "", "text-brand-primary"]}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px]"
             typingSpeed={35}
             initialDelay={400}
@@ -45,7 +45,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
             <div className="flex items-center gap-4">
               <div className="relative w-14 h-14 md:w-16 md:h-16 -translate-y-2">
                 <Image
-                  src="/images/Logo/logo.png"
+                  src="/images/logo.png"
                   alt="PATRA Logo"
                   fill
                   className="object-contain"

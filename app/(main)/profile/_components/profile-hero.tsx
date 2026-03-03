@@ -45,7 +45,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
             <div className="flex items-center gap-4">
               <div className="relative w-14 h-14 md:w-16 md:h-16 -translate-y-2">
                 <Image
-                  src="/images/Logo/logo.png"
+                  src="/images/logo.png"
                   alt="PATRA Logo"
                   fill
                   className="object-contain"

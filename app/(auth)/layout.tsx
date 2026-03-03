@@ -19,7 +19,7 @@ export default function AuthLayout({
           {/* Logo + Text */}
           <div className="flex items-center justify-center gap-3">
             <Image
-              src="/images/Logo/logo.png"
+              src="/images/logo.png"
               alt="PATRA Logo"
               width={48}
               height={48}

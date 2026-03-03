@@ -4,7 +4,11 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import TextType from "./text-type-effect";
 
-export function ProfileHeroKesenatoran({ children }: { children?: React.ReactNode }) {
+export function ProfileHeroKesenatoran({
+  children,
+}: {
+  children?: React.ReactNode;
+}) {
   return (
     <section className="relative w-full text-black flex flex-col pt-0 z-10">
       {/* Sticky background image track */}
@@ -35,7 +39,7 @@ export function ProfileHeroKesenatoran({ children }: { children?: React.ReactNod
               "dan menjaga integritas",
               "PATRA Ganesha",
             ]}
-            lineClassNames={["", "","text-brand-primary"]}
+            lineClassNames={["", "", "text-brand-primary"]}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px]"
             typingSpeed={35}
             initialDelay={400}
@@ -45,7 +49,7 @@ export function ProfileHeroKesenatoran({ children }: { children?: React.ReactNod
             <div className="flex items-center gap-4">
               <div className="relative w-14 h-14 md:w-16 md:h-16 -translate-y-2">
                 <Image
-                  src="/images/Logo/logo.png"
+                  src="/images/logo.png"
                   alt="PATRA Logo"
                   fill
                   className="object-contain"

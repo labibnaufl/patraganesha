@@ -25,7 +25,7 @@ export function HeroMaskEffect({
             </h1>
             <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0">
               <Image
-                src="/images/Logo/logo.png"
+                src="/images/logo.png"
                 alt="Logo HIMATEK PATRA ITB"
                 fill
                 className="object-contain"
