@@ -19,74 +19,51 @@ interface Member {
 
 const members: Member[] = [
   {
-    name: "Biro Sumber Daya Anggota",
-    role: "Biro",
-    image: "/images/Badan Pengurus/Biro Sumber Daya Anggota/DSC_0397.jpg",
+    name: "Rakha Zatria",
+    role: "Ketua Badan Perwakilan Angkatan ",
+    image: "/images/Badan Perwakilan Angkatan/Ketua/DSC_0059.jpg",
     className: "absolute top-16 left-[12%] rotate-[-6deg]",
     needsRotation: true,
   },
   {
-    name: "Khansa Uwais Savano",
-    role: "Biro Riset Kontrol dan Pengembangan Organisasi",
-    image: "/images/Badan Pengurus/BRKPO/DSC_0233.jpg",
+    name: "Danesthya Daiva Ariella",
+    role: "Komisi Sekretaris Jendral",
+    image:
+      "/images/Badan Perwakilan Angkatan/Komisi Sekretaris Jendral/DSC_0046.jpg",
     className: "absolute top-8 left-[28%] rotate-[5deg]",
     needsRotation: true,
   },
   {
-    name: "Rainy Larasati Putri S, Iman Raditya Wira A, Adhara Salsabila",
-    role: "Departemen Eksternal",
-    image: "/images/Badan Pengurus/Departemen Eksternal/0041.jpg",
+    name: "Ghayatrie Arienda, Ireine Tri A, Muhammad Hafidh F.",
+    role: "Komisi Pengawasan",
+    image:
+      "/images/Badan Perwakilan Angkatan/Komisi Pengawasan/KomisiPengawasan (1).png",
     className: "absolute top-28 left-[43%] rotate-[-4deg]",
-    needsRotation: false, // already portrait
+    needsRotation: false,
   },
   {
-    name: "Raditya Zidane K, Adiib Fathoni A, M. Irfan Abdunnafi, Maura Salsabila",
-    role: "Departemen Internal",
-    image: "/images/Badan Pengurus/Internal/DSC_0218.jpg",
+    name: "Wira Rahayu, Benediktus Aksa N.",
+    role: "Komisi Legislasi",
+    image:
+      "/images/Badan Perwakilan Angkatan/Komisi Legislasi/KomisiLegislasi.png",
     className: "absolute top-12 left-[58%] rotate-[8deg]",
-    needsRotation: true,
+    needsRotation: false,
   },
   {
-    name: "Zulaydi Awwab, Adit Ghazi Algafari, Hanif Rizqi Satrio T.",
-    role: "Departemen Kajian",
-    image: "/images/Badan Pengurus/Kajian/DSC_0297.jpg",
+    name: "Ilham Alghifary, Alexandra Suseno, Raditya Pangestu",
+    role: "Komisi Aspirasi dan Evaluasi ",
+    image:
+      "/images/Badan Perwakilan Angkatan/Komisi Aspirasi dan Evaluasi/KomisiAspirasidanEvaluasi.png",
     className: "absolute top-36 right-[18%] rotate-[-3deg]",
-    needsRotation: true,
+    needsRotation: false,
   },
   {
-    name: "Felix Marco Efendi, M. Dzulfadli Azhim, Miftah Daris Ilmi A, M. Dafin Putra Rustandi",
-    role: "Departemenm Eskalasi Potensi dan Karya",
-    image: "/images/Badan Pengurus/Karya/DSC_0315.jpg",
+    name: "Muzzaki Ahmad Raihan, Zahran Ardiono Prasojo ",
+    role: "Komisi Manajemen Internal",
+    image:
+      "/images/Badan Perwakilan Angkatan/Komisi Manajemen Internal/KomisiManajemenInternal (1).jpg",
     className: "absolute top-4 right-[30%] rotate-[6deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Anggita Pramestiarajati, Ilham Hanung H, Dhani Eka Ivantio",
-    role: "Departemen Kebutuhan Dasar",
-    image: "/images/Badan Pengurus/Kebutuhan Dasar/DSC_0356.jpg",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Ahmad Hadid N, Alda Aulia, Kelia Rosmadi, M. Yafi Rizqi Fathony",
-    role: "Departemen Kesekjenan",
-    image: "/images/Badan Pengurus/Kesekjenan/DSC_0092.jpg",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Syahrani Putri Khairul A, Christopher Andre F, I Putu Wika Arya S.",
-    role: "Departemen Media Komunikasi dan Informasi",
-    image: "/images/Badan Pengurus/Medkominfo/Medkominfo.png",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Al Farrel Putra R.",
-    role: "Ketua Badan Pengurus",
-    image: "/images/Badan Pengurus/Ketua/DSC_0014.jpg",
-    className: "absolute top-16 left-[12%] rotate-[-6deg]",
-    needsRotation: true,
+    needsRotation: false,
   },
 ];
 
@@ -122,7 +99,7 @@ function LandscapeToPortrait({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export function PatraMembers() {
+export function PatraMembersBPA() {
   return (
     <section className="w-full bg-background py-24">
       {/* Section Header */}
@@ -150,7 +127,7 @@ export function PatraMembers() {
       {/* Draggable Cards */}
       <DraggableCardContainer className="relative flex min-h-[600px] w-full items-center justify-center overflow-clip">
         <p className="pointer-events-none absolute top-1/2 mx-auto max-w-xs -translate-y-3/4 text-center text-2xl font-black text-orange-200 md:text-3xl dark:text-neutral-800 select-none">
-           Wajah di Setiap Langkah PATRA Ganesha.
+          Wajah di Setiap Langkah PATRA Ganesha.
         </p>
         {members.map((member, index) => (
           <DraggableCardBody key={index} className={member.className}>

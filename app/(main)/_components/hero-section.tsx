@@ -44,7 +44,7 @@ export async function HeroSection() {
           <div className="relative w-full h-full bg-black shadow-2xl">
             <Image
               src="/images/benderaPatra.png"
-             alt="Mahasiswa PATRA bersuara dengan megaphone"
+              alt="Bendera PATRA"
               fill
               priority
               className="object-cover object-top"

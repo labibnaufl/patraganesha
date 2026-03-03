@@ -164,15 +164,14 @@ export default async function EventsPage({
   return (
     <div className="w-full min-h-screen">
       {/* Page Header */}
-      <section className="w-full bg-brand-primary text-white py-16 md:py-24">
-        <div className="container mx-auto px-4 md:px-8">
-          <p className="text-white/70 text-sm font-medium tracking-widest uppercase mb-3">
-            PATRA Digital Hub
-          </p>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-4">
-            Events & Kegiatan
+      <section className="w-full bg-white py-16 md:py-24">
+        <div className="container mx-auto px-4 md:px-8 text-center flex flex-col items-center">
+          <p className="text-brand-primary font-medium mb-2">Events</p>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            Kegiatan &amp; Acara{" "}
+            <span className="text-brand-primary">PATRA Ganesha</span>
           </h1>
-          <p className="text-white/80 text-lg max-w-xl">
+          <p className="mt-3 text-slate-500 text-lg max-w-2xl mx-auto">
             Ikuti berbagai acara, kompetisi, dan kegiatan seru dari himpunan.
           </p>
         </div>

@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { incrementEventViewAction } from "./_lib/actions";
 import { EventReactionBar } from "./_components/event-reaction-bar";
 import { EventCommentSection } from "./_components/event-comment-section";
+import { EventRegistrationBox } from "./_components/event-registration-box";
 import Image from "next/image";
 import Link from "next/link";
 import { format, isFuture, differenceInDays } from "date-fns";
@@ -68,7 +69,7 @@ export default async function EventDetailPage({
 }) {
   const { slug } = await params;
 
-  // Fetch event and session in parallel
+  // Fetch event, session, and user attendance in parallel
   const [event, session] = await Promise.all([
     prisma.event.findUnique({
       where: { slug, status: "PUBLISHED" },
@@ -90,12 +91,39 @@ export default async function EventDetailPage({
 
   if (!event) notFound();
 
-  // Increment view count (fire-and-forget)
-  incrementEventViewAction(slug);
-
   const userId = session?.user?.id ?? null;
+
+  // Fetch user's attendance after we have userId and eventId
+  const userAttendance = userId
+    ? await prisma.eventAttendance.findUnique({
+        where: { userId_eventId: { userId, eventId: event.id } },
+        select: {
+          id: true,
+          status: true,
+          proofs: {
+            select: { id: true, url: true, thumbnailUrl: true },
+            orderBy: { uploadedAt: "asc" },
+          },
+        },
+      })
+    : null;
+
+  // Increment view count (fire-and-forget, void prevents unhandled promise warning)
+  void incrementEventViewAction(slug);
+
   const userRole = session?.user?.role ?? null;
   const isLoggedIn = !!userId;
+
+  // Registration state
+  const now = new Date();
+  const deadlinePassed = event.registrationDeadline
+    ? now > new Date(event.registrationDeadline)
+    : false;
+  const isFull = event.maxParticipants
+    ? event.currentParticipants >= event.maxParticipants
+    : false;
+  const eventPast = now > new Date(event.startDate);
+  const registrationOpen = !deadlinePassed && !isFull && !eventPast;
 
   const likes = event.reactions.filter((r) => r.type === "LIKE").length;
   const dislikes = event.reactions.filter((r) => r.type === "DISLIKE").length;
@@ -230,27 +258,36 @@ export default async function EventDetailPage({
               )}
           </div>
 
-          <div className="w-full md:w-auto shrink-0 flex flex-col gap-3">
-            {event.registrationLink ? (
-              <a
-                href={event.registrationLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full md:w-auto items-center justify-center gap-2 bg-brand-primary text-white hover:bg-brand-hover px-8 py-3.5 rounded-full font-bold transition-all"
-              >
-                Daftar Sekarang
-                <ExternalLink className="w-4 h-4" />
-              </a>
-            ) : (
-              <div className="px-8 py-3.5 rounded-full bg-muted text-muted-foreground font-bold text-center border">
-                Pendaftaran Ditutup / Tidak Tersedia
-              </div>
-            )}
-            {!isLoggedIn && (
-              <p className="text-xs text-center text-muted-foreground">
-                Hanya bisa mendaftar jika login.
-              </p>
-            )}
+          <div className="w-full md:w-auto shrink-0">
+            <EventRegistrationBox
+              eventId={event.id}
+              isLoggedIn={isLoggedIn}
+              registrationOpen={registrationOpen}
+              isFull={isFull}
+              deadlinePassed={deadlinePassed}
+              eventPast={eventPast}
+              requireProof={event.requireProof}
+              maxProofsPerUser={event.maxProofsPerUser}
+              userAttendance={
+                userAttendance
+                  ? {
+                      id: userAttendance.id,
+                      status: userAttendance.status as
+                        | "ABSEN"
+                        | "REGISTERED"
+                        | "ATTENDING"
+                        | "ATTENDED"
+                        | "REJECTED"
+                        | "CANCELLED",
+                      proofs: userAttendance.proofs.map((p) => ({
+                        id: p.id,
+                        url: p.url,
+                        thumbnailUrl: p.thumbnailUrl,
+                      })),
+                    }
+                  : null
+              }
+            />
           </div>
         </div>
 

@@ -19,73 +19,46 @@ interface Member {
 
 const members: Member[] = [
   {
-    name: "Biro Sumber Daya Anggota",
-    role: "Biro",
-    image: "/images/Badan Pengurus/Biro Sumber Daya Anggota/DSC_0397.jpg",
+    name: "Bintang Yanuar Putra",
+    role: "Ketua Komisi",
+    image: "/images/Badan Kesenatoran/Ketua/DSC_0016.jpg",
     className: "absolute top-16 left-[12%] rotate-[-6deg]",
     needsRotation: true,
   },
   {
-    name: "Khansa Uwais Savano",
-    role: "Biro Riset Kontrol dan Pengembangan Organisasi",
-    image: "/images/Badan Pengurus/BRKPO/DSC_0233.jpg",
+    name: "Yosua Zendrato",
+    role: "Senator",
+    image: "/images/Badan Kesenatoran/Senator/DSC_0005.jpg",
     className: "absolute top-8 left-[28%] rotate-[5deg]",
     needsRotation: true,
   },
   {
-    name: "Rainy Larasati Putri S, Iman Raditya Wira A, Adhara Salsabila",
-    role: "Departemen Eksternal",
-    image: "/images/Badan Pengurus/Departemen Eksternal/0041.jpg",
+    name: "Wildan Malik Fajar",
+    role: "Komisi Aspirasi Ganesha",
+    image: "/images/Badan Kesenatoran/Komisi Aspirasi Ganesha/DSC_0027.jpg",
     className: "absolute top-28 left-[43%] rotate-[-4deg]",
-    needsRotation: false, // already portrait
+    needsRotation: true,
   },
   {
-    name: "Raditya Zidane K, Adiib Fathoni A, M. Irfan Abdunnafi, Maura Salsabila",
-    role: "Departemen Internal",
-    image: "/images/Badan Pengurus/Internal/DSC_0218.jpg",
+    name: "Savana Nazwa Putri W.",
+    role: "Komisi Media Kreatif",
+    image: "/images/Badan Kesenatoran/Komisi Media Kreatif/DSC_0059 (1).jpg",
     className: "absolute top-12 left-[58%] rotate-[8deg]",
     needsRotation: true,
   },
   {
-    name: "Zulaydi Awwab, Adit Ghazi Algafari, Hanif Rizqi Satrio T.",
-    role: "Departemen Kajian",
-    image: "/images/Badan Pengurus/Kajian/DSC_0297.jpg",
+    name: "Valentino Varian Vanitra",
+    role: "Komisi Riset dan Kajian Ganesha",
+    image:
+      "/images/Badan Kesenatoran/Komisi Riset dan Kajian Ganesha/DSC_0024.jpg",
     className: "absolute top-36 right-[18%] rotate-[-3deg]",
     needsRotation: true,
   },
   {
-    name: "Felix Marco Efendi, M. Dzulfadli Azhim, Miftah Daris Ilmi A, M. Dafin Putra Rustandi",
-    role: "Departemenm Eskalasi Potensi dan Karya",
-    image: "/images/Badan Pengurus/Karya/DSC_0315.jpg",
+    name: "Naufal Abiyyu P, Rury Hikaru Adisty W, Farouq Abdullah",
+    role: "Badan Kesenatoran Cirebon",
+    image: "/images/Badan Kesenatoran/Badan Kesenatoran Cirebon/DSC_0090.jpg",
     className: "absolute top-4 right-[30%] rotate-[6deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Anggita Pramestiarajati, Ilham Hanung H, Dhani Eka Ivantio",
-    role: "Departemen Kebutuhan Dasar",
-    image: "/images/Badan Pengurus/Kebutuhan Dasar/DSC_0356.jpg",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Ahmad Hadid N, Alda Aulia, Kelia Rosmadi, M. Yafi Rizqi Fathony",
-    role: "Departemen Kesekjenan",
-    image: "/images/Badan Pengurus/Kesekjenan/DSC_0092.jpg",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Syahrani Putri Khairul A, Christopher Andre F, I Putu Wika Arya S.",
-    role: "Departemen Media Komunikasi dan Informasi",
-    image: "/images/Badan Pengurus/Medkominfo/Medkominfo.png",
-    className: "absolute top-24 left-[35%] rotate-[-9deg]",
-    needsRotation: true,
-  },
-  {
-    name: "Al Farrel Putra R.",
-    role: "Ketua Badan Pengurus",
-    image: "/images/Badan Pengurus/Ketua/DSC_0014.jpg",
-    className: "absolute top-16 left-[12%] rotate-[-6deg]",
     needsRotation: true,
   },
 ];
@@ -122,7 +95,7 @@ function LandscapeToPortrait({ src, alt }: { src: string; alt: string }) {
   );
 }
 
-export function PatraMembers() {
+export function PatraMembersKesenatoran() {
   return (
     <section className="w-full bg-background py-24">
       {/* Section Header */}
@@ -150,7 +123,7 @@ export function PatraMembers() {
       {/* Draggable Cards */}
       <DraggableCardContainer className="relative flex min-h-[600px] w-full items-center justify-center overflow-clip">
         <p className="pointer-events-none absolute top-1/2 mx-auto max-w-xs -translate-y-3/4 text-center text-2xl font-black text-orange-200 md:text-3xl dark:text-neutral-800 select-none">
-           Wajah di Setiap Langkah PATRA Ganesha.
+          Wajah di Setiap Langkah PATRA Ganesha.
         </p>
         {members.map((member, index) => (
           <DraggableCardBody key={index} className={member.className}>

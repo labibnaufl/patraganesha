@@ -236,11 +236,7 @@ export async function updateEvent(
         requireProof,
         autoVerify,
         maxProofsPerUser,
-        status: shouldPublish
-          ? "PUBLISHED"
-          : wasPublished
-            ? "PUBLISHED"
-            : "DRAFT",
+        status: shouldPublish ? "PUBLISHED" : existingEvent.status, // Preserve current status (DRAFT or ARCHIVED) when not explicitly publishing
         publishedAt:
           shouldPublish && !wasPublished
             ? new Date()

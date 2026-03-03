@@ -19,7 +19,19 @@ export function MainHeader() {
 
   const menuItems = [
     { label: "Home", ariaLabel: "Home", link: "/" },
-    { label: "Profile PATRA", ariaLabel: "Profile PATRA", link: "/profile" },
+    {
+      label: "Profile PATRA",
+      ariaLabel: "Profile PATRA",
+      link: "/profile",
+      children: [
+        { label: "Badan Pengurus", link: "/profile/badanpengurus" },
+        {
+          label: "Badan Perwakilan Angkatan",
+          link: "/profile/badanperwakilanangkatan",
+        },
+        { label: "Badan Kesenatoran", link: "/profile/badankesenatoran" },
+      ],
+    },
     { label: "Articles", ariaLabel: "News and Articles", link: "/articles" },
     { label: "Events", ariaLabel: "Events", link: "/events" },
     { label: "Academic Info", ariaLabel: "Academic Info", link: "/academic" },

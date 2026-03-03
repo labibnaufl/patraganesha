@@ -18,6 +18,7 @@ import {
   Archive,
   RotateCcw,
   Trash2,
+  Users,
 } from "lucide-react";
 import {
   publishEvent,
@@ -65,6 +66,14 @@ export function EventStatusActions({
           <Link href={`/admin/events/${eventId}`}>
             <Pencil className="size-3.5 mr-2" />
             Edit
+          </Link>
+        </DropdownMenuItem>
+
+        {/* View attendees */}
+        <DropdownMenuItem asChild>
+          <Link href={`/admin/events/${eventId}/attendances`}>
+            <Users className="size-3.5 mr-2" />
+            Lihat Peserta
           </Link>
         </DropdownMenuItem>
 

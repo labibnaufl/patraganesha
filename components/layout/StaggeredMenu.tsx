@@ -8,9 +8,9 @@ import React, {
 } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Instagram, Linkedin, Github, LogOut } from "lucide-react";
+import { LogOut, ChevronDown } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 
 export interface StaggeredMenuHandle {
   toggle: () => void;
@@ -18,10 +18,17 @@ export interface StaggeredMenuHandle {
   close: () => void;
 }
 
+interface SubItem {
+  label: string;
+  link: string;
+}
+
 interface MenuItem {
   label: string;
   ariaLabel: string;
   link: string;
+  /** Optional sub-links — renders this item as a dropdown instead of a direct link */
+  children?: SubItem[];
 }
 
 interface SocialItem {
@@ -62,6 +69,7 @@ const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState<number | null>(null);
     const isOpenRef = useRef(isOpen);
     isOpenRef.current = isOpen;
 
@@ -69,8 +77,12 @@ const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
       toggle: () => {
         const nextState = !isOpenRef.current;
         setIsOpen(nextState);
-        if (nextState) onMenuOpen?.();
-        else onMenuClose?.();
+        if (!nextState) {
+          setOpenDropdown(null);
+          onMenuClose?.();
+        } else {
+          onMenuOpen?.();
+        }
       },
       open: () => {
         setIsOpen(true);
@@ -78,9 +90,16 @@ const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
       },
       close: () => {
         setIsOpen(false);
+        setOpenDropdown(null);
         onMenuClose?.();
       },
     }));
+
+    const handleClose = () => {
+      setIsOpen(false);
+      setOpenDropdown(null);
+      onMenuClose?.();
+    };
 
     if (!isOpen) return null;
 
@@ -101,35 +120,103 @@ const StaggeredMenu = forwardRef<StaggeredMenuHandle, StaggeredMenuProps>(
       >
         <div className="absolute inset-0 pointer-events-none opacity-10 bg-linear-to-br from-primary/20 via-background to-secondary/20" />
         <nav className="relative z-10 w-full flex flex-col items-start gap-6 pt-16 mt-16 md:mt-0 md:pt-0">
-          {items.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.1,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-            >
-              <Link
-                href={item.link}
-                aria-label={item.ariaLabel}
-                className="group flex items-center gap-4 text-3xl md:text-5xl font-bold tracking-tighter hover:text-primary transition-colors duration-300"
-                onClick={() => {
-                  setIsOpen(false);
-                  onMenuClose?.();
+          {items.map((item, index) => {
+            const hasChildren = item.children && item.children.length > 0;
+            const isDropdownOpen = openDropdown === index;
+
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.1,
+                  ease: [0.16, 1, 0.3, 1],
                 }}
+                className="w-full"
               >
-                {displayItemNumbering && (
-                  <span className="text-muted-foreground/50 text-xl md:text-2xl font-mono">
-                    {(index + 1).toString().padStart(2, "0")}
-                  </span>
+                {hasChildren ? (
+                  /* ── Dropdown item ───────────────────────────── */
+                  <div className="w-full">
+                    <button
+                      onClick={() =>
+                        setOpenDropdown(isDropdownOpen ? null : index)
+                      }
+                      aria-expanded={isDropdownOpen}
+                      className="group flex items-center gap-4 text-3xl md:text-5xl font-bold tracking-tighter hover:text-primary transition-colors duration-300 w-full text-left"
+                    >
+                      {displayItemNumbering && (
+                        <span className="text-muted-foreground/50 text-xl md:text-2xl font-mono">
+                          {(index + 1).toString().padStart(2, "0")}
+                        </span>
+                      )}
+                      <span className="flex-1">{item.label}</span>
+                      <ChevronDown
+                        className={cn(
+                          "w-6 h-6 md:w-8 md:h-8 shrink-0 transition-transform duration-300 text-muted-foreground/60",
+                          isDropdownOpen && "rotate-180 text-primary",
+                        )}
+                      />
+                    </button>
+
+                    {/* Sub-items */}
+                    <AnimatePresence>
+                      {isDropdownOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{
+                            duration: 0.3,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex flex-col gap-2 pl-10 pt-3 pb-1 border-l-2 border-primary/30 ml-10 mt-2">
+                            {item.children!.map((child, ci) => (
+                              <motion.div
+                                key={ci}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{
+                                  delay: ci * 0.07,
+                                  duration: 0.25,
+                                }}
+                              >
+                                <Link
+                                  href={child.link}
+                                  onClick={handleClose}
+                                  className="block text-base md:text-lg font-semibold text-muted-foreground hover:text-primary transition-colors py-1"
+                                >
+                                  {child.label}
+                                </Link>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ) : (
+                  /* ── Regular link ────────────────────────────── */
+                  <Link
+                    href={item.link}
+                    aria-label={item.ariaLabel}
+                    className="group flex items-center gap-4 text-3xl md:text-5xl font-bold tracking-tighter hover:text-primary transition-colors duration-300"
+                    onClick={handleClose}
+                  >
+                    {displayItemNumbering && (
+                      <span className="text-muted-foreground/50 text-xl md:text-2xl font-mono">
+                        {(index + 1).toString().padStart(2, "0")}
+                      </span>
+                    )}
+                    <span>{item.label}</span>
+                  </Link>
                 )}
-                <span>{item.label}</span>
-              </Link>
-            </motion.div>
-          ))}
+              </motion.div>
+            );
+          })}
         </nav>
 
         {user && (

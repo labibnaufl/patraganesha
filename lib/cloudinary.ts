@@ -36,6 +36,53 @@ export async function uploadImage(
   });
 }
 
+export type ProofUploadResult = {
+  url: string;
+  publicId: string;
+  thumbnailUrl: string;
+  format: string;
+  width: number;
+  height: number;
+  fileSize: number;
+};
+
+/**
+ * Upload an attendance proof image to Cloudinary.
+ * Returns all metadata fields needed for the AttendanceProof model.
+ */
+export async function uploadProofImage(
+  file: File,
+  folder: string = "patra/attendance-proofs",
+): Promise<ProofUploadResult> {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "image",
+        eager: [{ width: 300, height: 300, crop: "fill", gravity: "auto" }],
+        eager_async: false,
+      },
+      (error, result) => {
+        if (error || !result) return reject(error);
+        const thumbnail = result.eager?.[0];
+        resolve({
+          url: result.secure_url,
+          publicId: result.public_id,
+          thumbnailUrl: thumbnail?.secure_url ?? result.secure_url,
+          format: result.format,
+          width: result.width,
+          height: result.height,
+          fileSize: result.bytes,
+        });
+      },
+    );
+    stream.end(buffer);
+  });
+}
+
 /**
  * Delete an image from Cloudinary by its public ID.
  * The public ID is the part of the URL after the folder name, before the extension.

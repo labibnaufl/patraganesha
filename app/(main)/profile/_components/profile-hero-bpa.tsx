@@ -27,15 +27,15 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
       <div className="relative z-10 w-full bg-white flex flex-col justify-center pb-56 pt-32 md:pt-40 shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
         <div className="container mx-auto px-4 md:px-8 max-w-5xl">
           <p className="text-slate-500 font-medium text-lg md:text-xl mb-4">
-            Badan Pengurus &ldquo;PATRA&rdquo; ITB
+            Badan Perwakilan Angkatan HMTM &ldquo;PATRA&rdquo; ITB
           </p>
           <TextType
             lines={[
-              "Mendokumentasikan karya,",
-              "dan menggerakkan kegiatan",
-              "PATRA Ganesha.",
+              "Mengawasi dengan sinergis,",
+              "dan menjaga integritas",
+              "PATRA Ganesha",
             ]}
-            lineClassNames={["", "", "text-brand-primary"]}
+            lineClassNames={["", "","text-brand-primary"]}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-[72px]"
             typingSpeed={35}
             initialDelay={400}
@@ -52,8 +52,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
                 />
               </div>
               <div className="font-bold text-slate-900 text-lg md:text-xl leading-tight -translate-y-2">
-                2 Biro
-                <br />7 Departemen
+                5 Komisi
               </div>
             </div>
 

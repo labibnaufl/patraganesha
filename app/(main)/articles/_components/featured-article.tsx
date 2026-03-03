@@ -39,7 +39,7 @@ export function FeaturedArticle({
       className="group relative flex flex-col lg:flex-row gap-0 bg-background border border-border/60 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 min-h-[320px]"
     >
       {/* Cover */}
-      <div className="relative w-full lg:w-[55%] aspect-[16/9] lg:aspect-auto bg-muted shrink-0 overflow-hidden">
+      <div className="relative w-full lg:w-[55%] aspect-[16/9] lg:aspect-auto lg:h-full lg:min-h-[280px] bg-muted shrink-0 overflow-hidden">
         {coverImage ? (
           <Image
             src={coverImage}
