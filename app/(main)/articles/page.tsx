@@ -102,7 +102,7 @@ export default async function ArticlesPage({
         {/* Header */}
         <div className="mb-10 text-center">
           <p className="text-brand-primary font-medium mb-2">Artikel</p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Wawasan &amp; Perspektif{" "}
             <span className="text-brand-primary">PATRA Ganesha</span>
           </h1>

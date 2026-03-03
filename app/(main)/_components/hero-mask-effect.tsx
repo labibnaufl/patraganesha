@@ -67,7 +67,7 @@ export function HeroMaskEffect({
           )}
         </div>
       }
-      className="h-160 text-white dark:text-black"
+      className="min-h-[70vh] md:h-160 text-white dark:text-black"
     >
       Masa depan <span className="text-brand-primary">PATRA Ganesha</span> ada
       di sini. Arahkan kursor untuk menemukan{" "}

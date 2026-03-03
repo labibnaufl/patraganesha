@@ -8,20 +8,21 @@ export function CtaSection() {
   return (
     <section className="w-full py-32 relative overflow-hidden bg-brand-primary text-white flex items-center justify-center min-h-[60vh]">
       {/* Background Graphic - Right Side */}
-      <div className="absolute right-0 bottom-0 h-full w-[60%] md:w-[45%] lg:w-[40%] pointer-events-none z-0">
+      <div className="absolute right-0 bottom-0 h-full w-[40%] sm:w-[50%] md:w-[45%] lg:w-[40%] pointer-events-none z-0 opacity-40 sm:opacity-70 md:opacity-90">
         <Image
           src="/images/Ganesha.jpg"
           alt="Ganesha Illustration"
           fill
-          className="object-contain object-bottom md:object-right-bottom opacity-90"
+          className="object-contain object-bottom md:object-bottom-right opacity-90"
         />
       </div>
 
       <div className="container mx-auto px-4 md:px-6 relative z-10 flex justify-center py-12">
         <div className="flex flex-col items-center text-center max-w-4xl space-y-6 md:space-y-8">
           <ScrollReveal direction="up" delay={0.1}>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.2]">
-              Jelajahi Aktivitas & <br className="hidden md:block" /> Arsip PATRA Ganesha
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.2]">
+              Jelajahi Aktivitas & <br className="hidden md:block" /> Arsip
+              PATRA Ganesha
             </h2>
           </ScrollReveal>
 

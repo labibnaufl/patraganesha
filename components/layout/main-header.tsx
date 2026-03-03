@@ -1,26 +1,41 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useLayoutEffect,
+} from "react";
 import { cn } from "@/lib/utils";
 import { useScroll } from "@/components/ui/use-scroll";
-import { Menu, X, Sun, Moon } from "lucide-react";
 import StaggeredMenu, { StaggeredMenuHandle } from "./StaggeredMenu";
-import { useTheme } from "next-themes";
-import Link from "next/link";
-import Image from "next/image";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
+import { gsap } from "gsap";
 
 export function MainHeader() {
   const scrolled = useScroll(10);
   const menuRef = useRef<StaggeredMenuHandle>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const { setTheme, theme } = useTheme();
+
+  // GSAP icon refs
+  const plusHRef = useRef<HTMLSpanElement>(null);
+  const plusVRef = useRef<HTMLSpanElement>(null);
+  const iconRef = useRef<HTMLSpanElement>(null);
+
+  // Text scramble refs
+  const textInnerRef = useRef<HTMLSpanElement>(null);
+  const [textLines, setTextLines] = useState<string[]>(["Menu", "Close"]);
+
+  // GSAP tween refs
+  const spinTlRef = useRef<gsap.core.Timeline | null>(null);
+  const textCycleRef = useRef<gsap.core.Tween | null>(null);
 
   const menuItems = [
     { label: "Home", ariaLabel: "Home", link: "/" },
     {
-      label: "Profile PATRA",
+      label: "Profile",
       ariaLabel: "Profile PATRA",
       link: "/profile",
       children: [
@@ -34,35 +49,19 @@ export function MainHeader() {
     },
     { label: "Articles", ariaLabel: "News and Articles", link: "/articles" },
     { label: "Events", ariaLabel: "Events", link: "/events" },
-    { label: "Academic Info", ariaLabel: "Academic Info", link: "/academic" },
+    { label: "Academic", ariaLabel: "Academic Info", link: "/academic" },
   ];
 
   const { data: session } = useSession();
 
-  // Close menu on Escape key — required by ARIA modal pattern
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        menuRef.current?.close();
-      }
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen]);
-
-  // Dynamically push auth links to the navigation menu
   if (!session?.user) {
-    menuItems.push({
-      label: "Login",
-      ariaLabel: "Login",
-      link: "/login",
-    });
+    menuItems.push({ label: "Login", ariaLabel: "Login", link: "/login" });
   } else {
-    const isSpecialAdmin =
+    const isAdmin =
       session.user.role === "SUPER_ADMIN" || session.user.role === "ADMIN";
-    if (isSpecialAdmin) {
+    if (isAdmin) {
       menuItems.push({
-        label: "Admin Panel",
+        label: "Admin",
         ariaLabel: "Admin Panel",
         link: "/admin",
       });
@@ -74,9 +73,78 @@ export function MainHeader() {
     { label: "LinkedIn", link: "https://linkedin.com/company/patra-undip" },
   ];
 
+  // Initialise GSAP icon state
+  useLayoutEffect(() => {
+    gsap.set(plusHRef.current, { transformOrigin: "50% 50%", rotate: 0 });
+    gsap.set(plusVRef.current, { transformOrigin: "50% 50%", rotate: 90 });
+    gsap.set(iconRef.current, { rotate: 0, transformOrigin: "50% 50%" });
+    gsap.set(textInnerRef.current, { yPercent: 0 });
+  }, []);
+
+  // Animate the +/× icon
+  const animateIcon = useCallback((opening: boolean) => {
+    spinTlRef.current?.kill();
+    if (opening) {
+      spinTlRef.current = gsap
+        .timeline({ defaults: { ease: "power4.out" } })
+        .to(plusHRef.current, { rotate: 45, duration: 0.45 }, 0)
+        .to(plusVRef.current, { rotate: -45, duration: 0.45 }, 0);
+    } else {
+      spinTlRef.current = gsap
+        .timeline({ defaults: { ease: "power3.inOut" } })
+        .to(plusHRef.current, { rotate: 0, duration: 0.3 }, 0)
+        .to(plusVRef.current, { rotate: 90, duration: 0.3 }, 0);
+    }
+  }, []);
+
+  // Animate the text scramble
+  const animateText = useCallback((opening: boolean) => {
+    const inner = textInnerRef.current;
+    if (!inner) return;
+    textCycleRef.current?.kill();
+
+    const from = opening ? "Menu" : "Close";
+    const to = opening ? "Close" : "Menu";
+    const seq = [from];
+    let last = from;
+    for (let i = 0; i < 3; i++) {
+      last = last === "Menu" ? "Close" : "Menu";
+      seq.push(last);
+    }
+    if (last !== to) seq.push(to);
+    seq.push(to);
+
+    setTextLines(seq);
+    gsap.set(inner, { yPercent: 0 });
+
+    const finalShift = ((seq.length - 1) / seq.length) * 100;
+    textCycleRef.current = gsap.to(inner, {
+      yPercent: -finalShift,
+      duration: 0.45 + seq.length * 0.06,
+      ease: "power4.out",
+    });
+  }, []);
+
   const handleToggle = () => {
+    const next = !isOpen;
     menuRef.current?.toggle();
+    animateIcon(next);
+    animateText(next);
+    // isOpen state is updated via onMenuOpen/onMenuClose callbacks
   };
+
+  // Escape key close
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        menuRef.current?.close();
+        animateIcon(false);
+        animateText(false);
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [isOpen, animateIcon, animateText]);
 
   return (
     <>
@@ -95,51 +163,61 @@ export function MainHeader() {
         <nav
           className={cn(
             "flex h-14 w-full container mx-auto items-center justify-between px-4 md:px-6 md:h-12 md:transition-all md:ease-out text-foreground",
-            {
-              "md:px-4": scrolled,
-            },
+            { "md:px-4": scrolled },
           )}
         >
+          {/* Logo / wordmark */}
           <Link
             href="/"
             className="flex items-center gap-3 hover:opacity-80 transition-opacity z-50"
           >
-            {/* Adding fallback dynamic gradient circle for now just in case the logo isn't available */}
             <span className="font-bold tracking-tight text-lg hidden sm:block">
               PATRA Digital Hub
             </span>
           </Link>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleToggle}
-              aria-expanded={isOpen}
-              aria-controls="main-menu"
-              aria-label={isOpen ? "Tutup menu" : "Buka menu"}
-              className="relative h-10 w-10 overflow-hidden z-50 hover:bg-secondary/50 rounded-full transition-colors"
+          {/* GSAP-animated toggle button */}
+          <button
+            onClick={handleToggle}
+            aria-expanded={isOpen}
+            aria-controls="main-menu"
+            aria-label={isOpen ? "Tutup menu" : "Buka menu"}
+            className="relative z-50 flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors select-none cursor-pointer bg-transparent border-0 p-0"
+          >
+            {/* Scrambling text */}
+            <span
+              className="relative inline-block h-[1em] overflow-hidden whitespace-nowrap"
+              aria-hidden="true"
             >
-              <Menu
-                className={cn(
-                  "h-6 w-6 absolute transition-all duration-300 ease-in-out",
-                  isOpen
-                    ? "rotate-90 opacity-0 scale-50"
-                    : "rotate-0 opacity-100 scale-100",
-                )}
-              />
+              <span
+                ref={textInnerRef}
+                className="flex flex-col leading-none"
+                style={{ lineHeight: 1 }}
+              >
+                {textLines.map((l, i) => (
+                  <span key={i} className="block h-[1em] leading-none">
+                    {l}
+                  </span>
+                ))}
+              </span>
+            </span>
 
-              <X
-                className={cn(
-                  "h-6 w-6 absolute transition-all duration-300 ease-in-out",
-                  isOpen
-                    ? "rotate-0 opacity-100 scale-100"
-                    : "-rotate-90 opacity-0 scale-50",
-                )}
+            {/* Morphing +/× icon */}
+            <span
+              ref={iconRef}
+              className="relative w-3.5 h-3.5 inline-flex items-center justify-center"
+              aria-hidden="true"
+            >
+              <span
+                ref={plusHRef}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1.5px] bg-current rounded-sm"
               />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </div>
+              <span
+                ref={plusVRef}
+                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-[1.5px] bg-current rounded-sm"
+              />
+            </span>
+          </button>
         </nav>
       </header>
 

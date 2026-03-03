@@ -83,7 +83,7 @@ export default async function AcademicPage({
       <section className="w-full bg-white py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-8 text-center flex flex-col items-center">
           <p className="text-brand-primary font-medium mb-2">Info Akademik</p>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
             Lomba, Beasiswa &amp;{" "}
             <span className="text-brand-primary">Info Kampus</span>
           </h1>

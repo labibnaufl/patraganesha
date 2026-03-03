@@ -33,7 +33,7 @@ export function EventCarousel({ events }: { events: any[] }) {
 
       {/* Slider Container */}
       <div
-        className="flex transition-transform duration-700 ease-in-out lg:min-h-125 h-full relative z-10"
+        className="flex transition-transform duration-700 ease-in-out h-full relative z-10"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {events.map((upcomingEvent) => {
@@ -63,7 +63,7 @@ export function EventCarousel({ events }: { events: any[] }) {
                 </div>
 
                 {/* Content side */}
-                <div className="relative p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-background/50 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none">
+                <div className="relative p-5 sm:p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-background/50 lg:bg-transparent backdrop-blur-sm lg:backdrop-blur-none">
                   <div className="space-y-6">
                     <div>
                       <h3 className="text-3xl md:text-4xl font-bold mb-4 tracking-tight group-hover:text-primary transition-colors">
@@ -167,7 +167,7 @@ export function EventCarousel({ events }: { events: any[] }) {
           </button>
 
           {/* Indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+          <div className="absolute bottom-3 md:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
             {events.map((_, idx) => (
               <button
                 key={idx}
