@@ -54,13 +54,17 @@ export function ReactionBar({
         if (prev === "LIKE") setLikes((l) => l - 1);
       }
     }
-    startTransition(() => toggleReactionAction(articleId, type));
+    startTransition(async () => {
+      await toggleReactionAction(articleId, type);
+    });
   }
 
   function handleBookmark() {
     if (!isLoggedIn) return;
     setBookmarked((b) => !b);
-    startTransition(() => toggleBookmarkAction(articleId));
+    startTransition(async () => {
+      await toggleBookmarkAction(articleId);
+    });
   }
 
   if (!isLoggedIn) {
