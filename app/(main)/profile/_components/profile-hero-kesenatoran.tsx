@@ -57,7 +57,6 @@ export function ProfileHeroKesenatoran({
               </div>
               <div className="font-bold text-slate-900 text-lg md:text-xl leading-tight -translate-y-2">
                 5 Komisi
-                <br /> 1 badan
               </div>
             </div>
 

@@ -31,7 +31,7 @@ export default function AuthLayout({
             </h1>
           </div>
           <p className="text-xs text-gray-500 mt-3">
-            Himpunan Mahasiswa Teknik Perminyakan ITB
+            Himpunan Mahasiswa Teknik Perminyakan "PATRA" ITB 
           </p>
         </div>
 
