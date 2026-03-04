@@ -24,7 +24,7 @@ export function MainFooter() {
             </p>
             <div className="flex items-center gap-4 pt-2">
               <a
-                href="https://instagram.com/patra_undip"
+                href="https://www.instagram.com/hmtmpatraitb/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors hover:-translate-y-1 transform duration-200"
@@ -33,7 +33,7 @@ export function MainFooter() {
                 <span className="sr-only">Instagram</span>
               </a>
               <a
-                href="https://linkedin.com/company/patra-undip"
+                href="https://www.linkedin.com/company/hmtmpatra-itb/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors hover:-translate-y-1 transform duration-200"
@@ -124,7 +124,7 @@ export function MainFooter() {
             &copy; {currentYear} PATRA Digital Hub. All rights reserved.
           </p>
           <div className="text-xs text-muted-foreground flex gap-4">
-            <span>Made with ✨ by the Dev Team</span>
+            <span>Made with ✨ by @labibnugrh</span>
           </div>
         </div>
       </div>

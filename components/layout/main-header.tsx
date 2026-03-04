@@ -69,8 +69,8 @@ export function MainHeader() {
   }
 
   const socialItems = [
-    { label: "Instagram", link: "https://instagram.com/patra_undip" },
-    { label: "LinkedIn", link: "https://linkedin.com/company/patra-undip" },
+    { label: "Instagram", link: "https://www.instagram.com/hmtmpatraitb/" },
+    { label: "LinkedIn", link: "https://www.linkedin.com/company/hmtmpatra-itb" },
   ];
 
   // Initialise GSAP icon state

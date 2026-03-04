@@ -8,13 +8,13 @@ export function IntroSection() {
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex flex-col items-start w-full space-y-6">
           <ScrollReveal direction="left">
-            <p className="text-white text-xl md:text-3xl font-medium tracking-wide">
+            <p className="text-black text-xl md:text-3xl font-medium tracking-wide">
               Tentang Kami,
             </p>
           </ScrollReveal>
 
           <ScrollReveal delay={0.2} direction="left">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight w-full mb-2 leading-tight pt-2">
+            <h2 className="text-white text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight w-full mb-2 leading-tight pt-2">
               PATRA Ganesha menjadi ruang bertumbuh untuk berkarya,
               berkolaborasi, dan mendokumentasikan setiap perjalanan organisasi
               dari masa ke masa.

@@ -35,7 +35,7 @@ export function ProfileHeroKesenatoran({
           </p>
           <TextType
             lines={[
-              "Mengawal aspirasi dengan representaf, strategis,",
+              "Mengawal aspirasi dengan representatif, strategis,",
               "dan menjaga integritas",
               "PATRA Ganesha",
             ]}
