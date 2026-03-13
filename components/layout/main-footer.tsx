@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Instagram, Linkedin } from "lucide-react";
+import { Instagram, Linkedin, Youtube } from "lucide-react";
 
 export function MainFooter() {
   const currentYear = new Date().getFullYear();
@@ -19,27 +19,37 @@ export function MainFooter() {
               </span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
-              Your central platform for all news, academic info, and events
-              related to our community. Connect, grow, and achieve together.
+              Platform terpusat untuk berita, informasi akademik, dan kegiatan
+              komunitas PATRA Ganesha. Terhubung, berkembang, dan berprestasi
+              bersama.
             </p>
             <div className="flex items-center gap-4 pt-2">
               <a
                 href="https://www.instagram.com/hmtmpatraitb/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Instagram PATRA"
                 className="text-muted-foreground hover:text-primary transition-colors hover:-translate-y-1 transform duration-200"
               >
                 <Instagram className="h-5 w-5" />
-                <span className="sr-only">Instagram</span>
               </a>
               <a
                 href="https://www.linkedin.com/company/hmtmpatra-itb/"
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="LinkedIn PATRA"
                 className="text-muted-foreground hover:text-primary transition-colors hover:-translate-y-1 transform duration-200"
               >
                 <Linkedin className="h-5 w-5" />
-                <span className="sr-only">LinkedIn</span>
+              </a>
+              <a
+                href="https://www.youtube.com/@mediahmtmpatraitb"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube PATRA"
+                className="text-muted-foreground hover:text-primary transition-colors hover:-translate-y-1 transform duration-200"
+              >
+                <Youtube className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -47,7 +57,7 @@ export function MainFooter() {
           {/* Quick Links */}
           <div className="space-y-4">
             <h3 className="font-semibold text-foreground tracking-tight">
-              Features
+              Fitur
             </h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>
@@ -55,7 +65,7 @@ export function MainFooter() {
                   href="/articles"
                   className="hover:text-primary transition-colors"
                 >
-                  News & Articles
+                  Berita &amp; Artikel
                 </Link>
               </li>
               <li>
@@ -63,7 +73,7 @@ export function MainFooter() {
                   href="/events"
                   className="hover:text-primary transition-colors"
                 >
-                  Upcoming Events
+                  Kegiatan Mendatang
                 </Link>
               </li>
               <li>
@@ -71,7 +81,7 @@ export function MainFooter() {
                   href="/academic"
                   className="hover:text-primary transition-colors"
                 >
-                  Academic Info
+                  Info Akademik
                 </Link>
               </li>
               <li>
@@ -79,7 +89,7 @@ export function MainFooter() {
                   href="/profile"
                   className="hover:text-primary transition-colors"
                 >
-                  About PATRA
+                  Tentang PATRA
                 </Link>
               </li>
             </ul>
@@ -96,7 +106,7 @@ export function MainFooter() {
                   href="/privacy-policy"
                   className="hover:text-primary transition-colors"
                 >
-                  Privacy Policy
+                  Kebijakan Privasi
                 </Link>
               </li>
               <li>
@@ -104,15 +114,15 @@ export function MainFooter() {
                   href="/terms"
                   className="hover:text-primary transition-colors"
                 >
-                  Terms of Service
+                  Syarat &amp; Ketentuan
                 </Link>
               </li>
               <li>
                 <a
-                  href="mailto:contact@patra-undip.org"
+                  href="mailto:contact@patra-itb.org"
                   className="hover:text-primary transition-colors"
                 >
-                  Contact Us
+                  Hubungi Kami
                 </a>
               </li>
             </ul>
@@ -121,10 +131,21 @@ export function MainFooter() {
 
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} PATRA Digital Hub. All rights reserved.
+            &copy; {currentYear} PATRA Digital Hub. Seluruh hak cipta
+            dilindungi.
           </p>
           <div className="text-xs text-muted-foreground flex gap-4">
-            <span>Made with ✨ by @labibnugrh</span>
+            <span>
+              Dibuat dengan ✨ oleh{" "}
+              <a
+                href="https://github.com/labibnaufl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary transition-colors"
+              >
+                @labibnugrh
+              </a>
+            </span>
           </div>
         </div>
       </div>

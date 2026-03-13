@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { format } from "date-fns";
+import { id as idLocale } from "date-fns/locale";
 import {
   ArrowUpRight,
   CalendarDays,
@@ -12,15 +13,16 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import type { Event } from "@/lib/generated/prisma";
 
-export function EventCarousel({ events }: { events: any[] }) {
+export function EventCarousel({ events }: { events: Event[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     if (events.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % events.length);
-    }, 6000); // 6 seconds per slide
+    }, 6000);
     return () => clearInterval(interval);
   }, [events.length]);
 
@@ -50,6 +52,7 @@ export function EventCarousel({ events }: { events: any[] }) {
                       src={upcomingEvent.coverImage}
                       alt={upcomingEvent.title}
                       fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
                   ) : (
@@ -81,12 +84,13 @@ export function EventCarousel({ events }: { events: any[] }) {
                         </div>
                         <div>
                           <div className="font-semibold text-sm">
-                            Date & Time
+                            Tanggal &amp; Waktu
                           </div>
                           <div className="text-muted-foreground text-sm">
                             {format(
                               new Date(upcomingEvent.startDate),
-                              "MMMM d, yyyy",
+                              "d MMMM yyyy",
+                              { locale: idLocale },
                             )}
                           </div>
                         </div>
@@ -97,10 +101,10 @@ export function EventCarousel({ events }: { events: any[] }) {
                           <MapPin className="w-5 h-5" />
                         </div>
                         <div>
-                          <div className="font-semibold text-sm">Location</div>
+                          <div className="font-semibold text-sm">Lokasi</div>
                           <div className="text-muted-foreground text-sm capitalize">
                             {isOnline
-                              ? "Online"
+                              ? "Daring (Online)"
                               : isHybrid
                                 ? "Hybrid (Online + Offline)"
                                 : upcomingEvent.location || "TBA"}
@@ -114,12 +118,12 @@ export function EventCarousel({ events }: { events: any[] }) {
                         </div>
                         <div>
                           <div className="font-semibold text-sm">
-                            Availability
+                            Ketersediaan
                           </div>
                           <div className="text-muted-foreground text-sm">
                             {upcomingEvent.maxParticipants
-                              ? `${upcomingEvent.currentParticipants} / ${upcomingEvent.maxParticipants} Registered`
-                              : `${upcomingEvent.currentParticipants} Registered (Open for all)`}
+                              ? `${upcomingEvent.currentParticipants} / ${upcomingEvent.maxParticipants} Terdaftar`
+                              : `${upcomingEvent.currentParticipants} Terdaftar (Terbuka untuk semua)`}
                           </div>
                         </div>
                       </div>
@@ -129,7 +133,7 @@ export function EventCarousel({ events }: { events: any[] }) {
                       href={`/events/${upcomingEvent.slug}`}
                       className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-h-12 h-12 rounded-full px-8 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 w-full sm:w-auto mt-4 group/btn"
                     >
-                      View Details & Register
+                      Detail &amp; Daftar
                       <ArrowUpRight className="ml-2 w-4 h-4 transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
                     </Link>
                   </div>
@@ -143,15 +147,15 @@ export function EventCarousel({ events }: { events: any[] }) {
       {/* Navigation Controls */}
       {events.length > 1 && (
         <>
-          {/* Arrows */}
+          {/* Arrows — shown from md: up */}
           <button
             onClick={() =>
               setCurrentIndex((prev) =>
                 prev === 0 ? events.length - 1 : prev - 1,
               )
             }
-            className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 hover:bg-background text-primary items-center justify-center z-20 shadow-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Previous event"
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 hover:bg-background text-primary items-center justify-center z-20 shadow-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Kegiatan sebelumnya"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -160,8 +164,8 @@ export function EventCarousel({ events }: { events: any[] }) {
             onClick={() =>
               setCurrentIndex((prev) => (prev + 1) % events.length)
             }
-            className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 hover:bg-background text-primary items-center justify-center z-20 shadow-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
-            aria-label="Next event"
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/80 hover:bg-background text-primary items-center justify-center z-20 shadow-lg backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity"
+            aria-label="Kegiatan berikutnya"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -172,7 +176,7 @@ export function EventCarousel({ events }: { events: any[] }) {
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
-                aria-label={`Go to slide ${idx + 1}`}
+                aria-label={`Slide ${idx + 1}`}
                 className={`h-2 rounded-full transition-all duration-300 ${
                   idx === currentIndex
                     ? "w-6 bg-primary"

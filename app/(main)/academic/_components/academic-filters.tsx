@@ -2,7 +2,53 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
+
+const TYPES = [
+  { value: "", label: "Semua Info" },
+  { value: "LOMBA", label: "Lomba" },
+  { value: "BEASISWA", label: "Beasiswa" },
+  { value: "INFO_KAMPUS", label: "Info Kampus" },
+];
+
+const SORTS = [
+  { value: "deadline", label: "Deadline Terdekat" },
+  { value: "newest", label: "Terbaru" },
+];
+
+function FilterSelect({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <div className="relative flex-1 min-w-0">
+      <label className="absolute -top-2 left-3 text-[10px] font-semibold text-muted-foreground bg-background px-1 z-10 tracking-wide uppercase">
+        {label}
+      </label>
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full appearance-none pl-3.5 pr-9 py-2.5 text-sm font-medium rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors cursor-pointer"
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      </div>
+    </div>
+  );
+}
 
 export function AcademicFilters() {
   const router = useRouter();
@@ -32,71 +78,42 @@ export function AcademicFilters() {
     startTransition(() => router.push(buildUrl({ search })));
   }
 
-  const TYPES = [
-    { value: "", label: "Semua Info" },
-    { value: "LOMBA", label: "Lomba" },
-    { value: "BEASISWA", label: "Beasiswa" },
-    { value: "INFO_KAMPUS", label: "Info Kampus" },
-  ];
-
-  const SORTS = [
-    { value: "deadline", label: "Deadline Terdekat" },
-    { value: "newest", label: "Terbaru" },
-  ];
-
   return (
     <div
-      className={`space-y-6 transition-opacity ${isPending ? "opacity-50" : ""}`}
+      className={`space-y-4 transition-opacity ${isPending ? "opacity-50 pointer-events-none" : ""}`}
     >
       {/* Search bar */}
       <form onSubmit={handleSearch} className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Cari info akademik, lomba, beasiswa..."
-          className="w-full pl-11 pr-4 py-3 rounded-full border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+          placeholder="Cari lomba, beasiswa, info kampus..."
+          className="w-full pl-11 pr-28 py-3 rounded-xl border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
         />
-        <button type="submit" className="sr-only">
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 transition-opacity"
+        >
           Cari
         </button>
       </form>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        {/* Type Tabs */}
-        <div className="flex flex-wrap gap-2">
-          {TYPES.map((type) => (
-            <button
-              key={type.value}
-              onClick={() => handleFilter("type", type.value)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                activeType === type.value
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "bg-background text-muted-foreground border-border hover:border-primary/50 hover:text-foreground"
-              }`}
-            >
-              {type.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Sort Select */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Urutkan:</span>
-          <select
-            className="px-3 py-1.5 rounded-full bg-background border border-border text-sm focus:outline-none focus:border-primary"
-            value={activeSort}
-            onChange={(e) => handleFilter("sort", e.target.value)}
-          >
-            {SORTS.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Dropdown filters */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <FilterSelect
+          label="Jenis Info"
+          value={activeType}
+          onChange={(val) => handleFilter("type", val)}
+          options={TYPES}
+        />
+        <FilterSelect
+          label="Urutkan"
+          value={activeSort}
+          onChange={(val) => handleFilter("sort", val)}
+          options={SORTS}
+        />
       </div>
     </div>
   );

@@ -146,7 +146,7 @@ export function EventProofUpload({
 
       {/* File previews */}
       {files.length > 0 && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {files.map((f) => (
             <div key={f.localId} className="relative group">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -171,7 +171,7 @@ export function EventProofUpload({
               {f.status === "error" && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-red-900/60 px-2">
                   <X className="w-4 h-4 text-white mb-1" />
-                  <p className="text-[10px] text-white text-center leading-tight">
+                  <p className="text-[10px] text-white text-center leading-tight break-all">
                     {f.error}
                   </p>
                 </div>

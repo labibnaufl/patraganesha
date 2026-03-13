@@ -12,6 +12,7 @@ import { useScroll } from "@/components/ui/use-scroll";
 import StaggeredMenu, { StaggeredMenuHandle } from "./StaggeredMenu";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { gsap } from "gsap";
 
 export function MainHeader() {
@@ -70,7 +71,10 @@ export function MainHeader() {
 
   const socialItems = [
     { label: "Instagram", link: "https://www.instagram.com/hmtmpatraitb/" },
-    { label: "LinkedIn", link: "https://www.linkedin.com/company/hmtmpatra-itb" },
+    {
+      label: "LinkedIn",
+      link: "https://www.linkedin.com/company/hmtmpatra-itb",
+    },
   ];
 
   // Initialise GSAP icon state
@@ -148,6 +152,14 @@ export function MainHeader() {
 
   return (
     <>
+      {/* Skip to main content — keyboard/screen-reader accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-200 focus:px-4 focus:py-2 focus:rounded-lg focus:bg-brand-primary focus:text-white focus:font-semibold focus:shadow-lg"
+      >
+        Skip to content
+      </a>
+
       <header
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300 ease-out px-4 py-2 bg-white items-center",
@@ -161,17 +173,29 @@ export function MainHeader() {
         )}
       >
         <nav
+          aria-label="Main navigation"
           className={cn(
             "flex h-14 w-full container mx-auto items-center justify-between px-4 md:px-6 md:h-12 md:transition-all md:ease-out text-foreground",
             { "md:px-4": scrolled },
           )}
         >
-          {/* Logo / wordmark */}
+          {/* Logo / wordmark — visible on all breakpoints */}
           <Link
             href="/"
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity z-50"
+            className="flex items-center gap-2.5 hover:opacity-80 transition-opacity z-50"
+            aria-label="PATRA Digital Hub — Home"
           >
-            <span className="font-bold tracking-tight text-lg hidden sm:block">
+            <div className="relative w-8 h-8 shrink-0">
+              <Image
+                src="/images/logo.png"
+                alt="Logo PATRA"
+                fill
+                className="object-contain"
+                sizes="32px"
+                priority
+              />
+            </div>
+            <span className="font-bold tracking-tight text-lg">
               PATRA Digital Hub
             </span>
           </Link>

@@ -181,23 +181,25 @@ export function EventRegistrationBox({
 
         {/* Cancel confirm */}
         {showCancelConfirm && (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-red-50 border border-red-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-xl bg-red-50 border border-red-200">
             <p className="text-sm text-red-700 flex-1">
               Yakin ingin membatalkan pendaftaran?
             </p>
-            <button
-              onClick={handleCancel}
-              disabled={isPending}
-              className="px-4 py-1.5 rounded-full bg-red-600 text-white text-sm font-semibold disabled:opacity-50 transition-all hover:bg-red-700"
-            >
-              {isPending ? "Membatalkan..." : "Ya, Batalkan"}
-            </button>
-            <button
-              onClick={() => setShowCancelConfirm(false)}
-              className="px-4 py-1.5 rounded-full border text-sm text-muted-foreground hover:bg-muted transition-all"
-            >
-              Tidak
-            </button>
+            <div className="flex gap-2 shrink-0">
+              <button
+                onClick={handleCancel}
+                disabled={isPending}
+                className="px-4 py-1.5 rounded-full bg-red-600 text-white text-sm font-semibold disabled:opacity-50 transition-all hover:bg-red-700"
+              >
+                {isPending ? "Membatalkan..." : "Ya, Batalkan"}
+              </button>
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="px-4 py-1.5 rounded-full border text-sm text-muted-foreground hover:bg-muted transition-all"
+              >
+                Tidak
+              </button>
+            </div>
           </div>
         )}
 
@@ -208,7 +210,7 @@ export function EventRegistrationBox({
               Bukti terkirim ({userAttendance.proofs.length}/{maxProofsPerUser}
               ):
             </p>
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex gap-2 flex-wrap overflow-x-auto pb-1">
               {userAttendance.proofs.map((proof) => (
                 <a
                   key={proof.id}

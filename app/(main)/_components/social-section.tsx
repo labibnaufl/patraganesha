@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Youtube } from "lucide-react";
-import { YouTubeEmbed } from "@next/third-parties/google";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
+import { YouTubeFacade } from "@/components/ui/youtube-facade";
 
 export function SocialSection() {
   return (
@@ -47,17 +47,16 @@ export function SocialSection() {
             </ScrollReveal>
           </div>
 
+          {/* YouTube Facade — defers iframe until user clicks (CWV fix) */}
           <ScrollReveal
             direction="left"
             delay={0.3}
-            className="relative w-full aspect-video rounded-3xl shadow-2xl border-4 border-white/20"
+            className="relative w-full aspect-video rounded-3xl shadow-2xl border-4 border-white/20 overflow-hidden"
           >
-            <div className="w-full h-full overflow-hidden [&>div]:w-full [&>div]:h-full [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:absolute [&_iframe]:inset-0 rounded-2xl relative">
-              <YouTubeEmbed
-                videoid="oeY6U3l0nOo"
-                playlabel="Play PATRA Profile Video"
-              />
-            </div>
+            <YouTubeFacade
+              videoid="oeY6U3l0nOo"
+              playlabel="Putar Video Profil PATRA"
+            />
           </ScrollReveal>
         </div>
       </div>

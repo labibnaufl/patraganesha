@@ -34,10 +34,55 @@ function EventSkeleton() {
   );
 }
 
-export async function HeroSection() {
+/** Auth-aware CTA buttons — rendered async server-side */
+async function HeroCtaButtons() {
   const session = await auth();
   return (
-    <section className="relative w-full text-black flex flex-col pt-0 z-10">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+      <Button
+        size="lg"
+        className="w-full sm:w-auto rounded-full text-base sm:text-lg font-bold px-8 sm:px-10 h-12 sm:h-14 bg-brand-primary hover:bg-brand-hover text-white border-2 border-brand-primary"
+        asChild
+      >
+        {session?.user ? (
+          <Link
+            href={
+              session.user.role === "SUPER_ADMIN" ||
+              session.user.role === "ADMIN"
+                ? "/admin"
+                : "/events"
+            }
+          >
+            {session.user.role === "SUPER_ADMIN" ||
+            session.user.role === "ADMIN"
+              ? "Admin Panel"
+              : "Events"}
+          </Link>
+        ) : (
+          <Link href="/login">Login</Link>
+        )}
+      </Button>
+      <Button
+        size="lg"
+        variant="outline"
+        className="w-full sm:w-auto rounded-full text-base sm:text-lg font-bold px-6 sm:px-8 h-12 sm:h-14 bg-white hover:bg-white/90 text-brand-primary border-2 border-brand-primary flex items-center justify-center gap-2"
+        asChild
+      >
+        <Link href="/articles">
+          Baca Artikel Kami
+          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+export async function HeroSection() {
+  return (
+    <section
+      id="main-content"
+      className="relative w-full text-black flex flex-col pt-0 z-10"
+    >
       {/* Sticky background image track */}
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <div className="sticky top-0 w-full h-screen flex items-center justify-center">
@@ -47,6 +92,7 @@ export async function HeroSection() {
               alt="Bendera PATRA"
               fill
               priority
+              sizes="100vw"
               className="object-cover object-top"
             />
           </div>
@@ -60,42 +106,16 @@ export async function HeroSection() {
           <div className="w-full">
             <HeroMaskEffect
               ctaButtons={
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto rounded-full text-base sm:text-lg font-bold px-8 sm:px-10 h-12 sm:h-14 bg-brand-primary hover:bg-brand-hover text-white border-2 border-brand-primary"
-                    asChild
-                  >
-                    {session?.user ? (
-                      <Link
-                        href={
-                          session.user.role === "SUPER_ADMIN" ||
-                          session.user.role === "ADMIN"
-                            ? "/admin"
-                            : "/events"
-                        }
-                      >
-                        {session.user.role === "SUPER_ADMIN" ||
-                        session.user.role === "ADMIN"
-                          ? "Admin Panel"
-                          : "Events"}
-                      </Link>
-                    ) : (
-                      <Link href="/login">Login</Link>
-                    )}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto rounded-full text-base sm:text-lg font-bold px-6 sm:px-8 h-12 sm:h-14 bg-white hover:bg-white/90 text-brand-primary border-2 border-brand-primary flex items-center justify-center gap-2"
-                    asChild
-                  >
-                    <Link href="/articles">
-                      Baca Artikel Kami
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
-                    </Link>
-                  </Button>
-                </div>
+                <Suspense
+                  fallback={
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                      <Skeleton className="h-12 sm:h-14 w-full sm:w-36 rounded-full" />
+                      <Skeleton className="h-12 sm:h-14 w-full sm:w-48 rounded-full" />
+                    </div>
+                  }
+                >
+                  <HeroCtaButtons />
+                </Suspense>
               }
             />
           </div>

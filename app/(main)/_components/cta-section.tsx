@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight } from "lucide-react";
 import { ScrollReveal } from "@/components/animations/scroll-reveal";
 
 export function CtaSection() {
@@ -39,7 +38,7 @@ export function CtaSection() {
             className="pt-6 w-full sm:w-auto"
           >
             <Link
-              href="/register"
+              href="/events"
               className="inline-flex items-center justify-center whitespace-nowrap text-brand-primary font-bold tracking-wide text-lg transition-all h-14 md:h-16 rounded-full px-12 md:px-16 bg-white hover:bg-white/90 hover:scale-105 active:scale-95 duration-200 shadow-xl"
             >
               Mulai Menjelajah
