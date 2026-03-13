@@ -6,6 +6,51 @@ import { loginSchema, registerSchema } from "@/lib/validations/auth";
 import bcrypt from "bcryptjs";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/email";
 import { AuthError } from "next-auth";
+import { headers } from "next/headers";
+
+// ============
+// RATE LIMITER
+// ============
+const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const MAX_ATTEMPTS = 5;
+
+type RateLimitEntry = { count: number; resetAt: number };
+const loginAttempts = new Map<string, RateLimitEntry>();
+const registerAttempts = new Map<string, RateLimitEntry>();
+
+function checkRateLimit(
+  map: Map<string, RateLimitEntry>,
+  ip: string,
+): { blocked: boolean; remaining: number } {
+  const now = Date.now();
+  const entry = map.get(ip);
+
+  // Reset if window has expired
+  if (!entry || now > entry.resetAt) {
+    map.set(ip, { count: 1, resetAt: now + WINDOW_MS });
+    return { blocked: false, remaining: MAX_ATTEMPTS - 1 };
+  }
+
+  entry.count++;
+  if (entry.count > MAX_ATTEMPTS) {
+    return { blocked: true, remaining: 0 };
+  }
+
+  return { blocked: false, remaining: MAX_ATTEMPTS - entry.count };
+}
+
+function resetRateLimit(map: Map<string, RateLimitEntry>, ip: string) {
+  map.delete(ip);
+}
+
+async function getClientIP(): Promise<string> {
+  const headersList = await headers();
+  return (
+    headersList.get("x-forwarded-for")?.split(",")[0].trim() ??
+    headersList.get("x-real-ip") ??
+    "unknown"
+  );
+}
 
 // ============
 // LOGIN
@@ -14,6 +59,17 @@ export async function loginAction(
   _prevState: { error?: string; success?: boolean } | undefined,
   formData: FormData,
 ) {
+  const ip = await getClientIP();
+
+  // 1. Check rate limit BEFORE validating credentials
+  const { blocked } = checkRateLimit(loginAttempts, ip);
+  if (blocked) {
+    return {
+      error:
+        "Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.",
+    };
+  }
+
   try {
     const rawData = {
       email: formData.get("email") as string,
@@ -32,6 +88,8 @@ export async function loginAction(
       redirectTo: "/",
     });
 
+    // Success — clear rate limit for this IP
+    resetRateLimit(loginAttempts, ip);
     return { success: true };
   } catch (error) {
     if (error instanceof AuthError) {
@@ -66,6 +124,21 @@ export async function registerAction(
   _prevState: { error?: string; success?: boolean } | undefined,
   formData: FormData,
 ) {
+  const ip = await getClientIP();
+
+  // Rate limit registrations: max 3 per 15 min per IP
+  const regEntry = registerAttempts.get(ip);
+  const now = Date.now();
+  if (regEntry && now <= regEntry.resetAt && regEntry.count >= 3) {
+    return {
+      error: "Terlalu banyak percobaan pendaftaran. Silakan coba lagi dalam 15 menit.",
+    };
+  }
+  registerAttempts.set(ip, {
+    count: (regEntry && now <= regEntry.resetAt ? regEntry.count : 0) + 1,
+    resetAt: regEntry && now <= regEntry.resetAt ? regEntry.resetAt : now + WINDOW_MS,
+  });
+
   try {
     const rawData = {
       name: formData.get("name") as string,

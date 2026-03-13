@@ -1,5 +1,7 @@
 "use client";
 
+import { sanitizeHtml } from "@/lib/sanitize-html";
+
 type ArticleBodyProps = {
   html: string;
 };
@@ -20,7 +22,8 @@ export function ArticleBody({ html }: ArticleBodyProps) {
         prose-ul:list-disc prose-ul:pl-6
         prose-ol:list-decimal prose-ol:pl-6
         prose-li:my-1"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
     />
   );
 }
+
