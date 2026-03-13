@@ -51,7 +51,7 @@ export function FeaturedArticle({
           />
         ) : (
           <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary/40 text-sm">
-            PATRA Digital Hub
+            HMTM "PATRA" ITB
           </div>
         )}
         {/* Pinned badge */}

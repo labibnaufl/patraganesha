@@ -132,7 +132,7 @@ export default function TermsPage() {
             Seluruh konten yang dibuat oleh tim HMTM &quot;PATRA&quot; ITB (desain, logo,
             teks resmi) dilindungi oleh hak cipta. Konten yang dikirimkan oleh
             pengguna tetap menjadi hak milik pengguna, namun dengan mendunggah
-            konten tersebut, Anda memberikan lisensi kepada PATRA Digital Hub
+            konten tersebut, Anda memberikan lisensi kepada HMTM &quot;PATRA&quot; ITB
             untuk menampilkan dan mendistribusikan konten tersebut di dalam
             platform.
           </p>

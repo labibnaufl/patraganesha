@@ -115,7 +115,7 @@ export default function PrivacyPolicyPage() {
               Indonesia.
             </li>
             <li>
-              Untuk melindungi hak, keamanan, atau properti PATRA Digital Hub
+              Untuk melindungi hak, keamanan, atau properti HMTM "PATRA" ITB
               dan penggunanya.
             </li>
           </ul>

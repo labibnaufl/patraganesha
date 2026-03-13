@@ -33,7 +33,7 @@ export function HeroMaskEffect({
                 aria-hidden="true"
                 className="text-5xl sm:text-7xl md:text-9xl lg:text-[120px] font-black tracking-[0.01em] leading-none text-white text-patra-stroke"
               >
-                PATRA
+                HMTM
               </span>
               <div className="relative w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-32 lg:h-32 shrink-0">
                 <Image
@@ -54,7 +54,7 @@ export function HeroMaskEffect({
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
             >
-              Digital Hub
+              "PATRA" ITB
             </motion.span>
 
             {/* Subtitle */}

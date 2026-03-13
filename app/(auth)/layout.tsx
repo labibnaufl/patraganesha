@@ -27,7 +27,7 @@ export default function AuthLayout({
               priority
             />
             <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-[#FF6E00] tracking-[2px] sm:tracking-[3px] font-heading whitespace-nowrap">
-              PATRA DIGITAL HUB
+              HMTM "PATRA" ITB
             </h1>
           </div>
           <p className="text-xs text-gray-500 mt-3">

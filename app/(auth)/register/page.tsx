@@ -112,7 +112,7 @@ export default function RegisterPage() {
             id="email"
             name="email"
             type="email"
-            placeholder="nama@email.com"
+            placeholder="nama@mahasiswa.itb.ac.id"
   className="auth-input w-full px-4 py-3 bg-[#FFEDDF] border border-[#FFD9B8] rounded-xl text-gray-900 text-sm placeholder:text-gray-400 outline-none transition-all focus:border-[#FF6E00] focus:ring-2 focus:ring-[#FF6E00]/20"
 required
             autoComplete="email"
@@ -160,7 +160,7 @@ required
         {/* Divider */}
         <div className="flex items-center gap-3 my-1">
           <div className="flex-1 h-px bg-white/[0.06]" />
-          <span className="text-xs font-bold text-black">
+          <span className="text-xs  font-bold text-black">
             Informasi Mahasiswa
           </span>
           <div className="flex-1 h-px bg-white/[0.06]" />

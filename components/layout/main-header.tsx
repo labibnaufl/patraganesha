@@ -183,7 +183,7 @@ export function MainHeader() {
           <Link
             href="/"
             className="flex items-center gap-2.5 hover:opacity-80 transition-opacity z-50"
-            aria-label="PATRA Digital Hub — Home"
+            aria-label='HMTM "PATRA" ITB — Home'
           >
             <div className="relative w-8 h-8 shrink-0">
               <Image
@@ -196,7 +196,7 @@ export function MainHeader() {
               />
             </div>
             <span className="font-bold tracking-tight text-lg">
-              PATRA Digital Hub
+              HMTM "PATRA" ITB
             </span>
           </Link>
 

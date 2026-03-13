@@ -15,7 +15,7 @@ export function MainFooter() {
                 PDH
               </div>
               <span className="font-bold tracking-tight text-xl">
-                PATRA Digital Hub
+                HMTM "PATRA" ITB
               </span>
             </Link>
             <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
@@ -131,7 +131,7 @@ export function MainFooter() {
 
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            &copy; {currentYear} PATRA Digital Hub. Seluruh hak cipta
+            &copy; {currentYear} HMTM "PATRA" ITB. Seluruh hak cipta
             dilindungi.
           </p>
           <div className="text-xs text-muted-foreground flex gap-4">

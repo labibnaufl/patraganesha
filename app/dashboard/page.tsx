@@ -15,7 +15,7 @@ export default async function UserDashboard() {
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <h1 className="text-lg font-bold font-heading text-foreground tracking-wide">
-              PATRA Digital Hub
+              HMTM "PATRA" ITB
             </h1>
           </div>
           <div className="flex items-center gap-4">
