@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap");
+/* Fonts are loaded via next/font/google in app/layout.tsx — do NOT add @import for Google Fonts here */
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
