@@ -23,8 +23,8 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://patra-digital-hub.c
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "PATRA Digital Hub",
-    template: "%s | PATRA Digital Hub",
+    default: "HMTM \"PATRA\" ITB",
+    template: "%s | HMTM \"PATRA\" ITB",
   },
   description:
     "Platform digital Himpunan Mahasiswa Teknik Perminyakan ITB — berita, event, informasi akademik, dan komunitas.",
@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     url: siteUrl,
-    siteName: "PATRA Digital Hub",
-    title: "PATRA Digital Hub",
+    siteName: "HMTM \"PATRA\" ITB",
+    title: "HMTM \"PATRA\" ITB",
     description:
       "Platform digital Himpunan Mahasiswa Teknik Perminyakan ITB — berita, event, informasi akademik, dan komunitas.",
     images: [
@@ -41,13 +41,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "PATRA Digital Hub",
+        alt: "HMTM \"PATRA\" ITB",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PATRA Digital Hub",
+    title: "HMTM \"PATRA\" ITB",
     description:
       "Platform digital Himpunan Mahasiswa Teknik Perminyakan ITB.",
     images: ["/og-image.png"],

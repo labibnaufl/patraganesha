@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "PATRA Digital Hub — Autentikasi",
-  description: "Login atau daftar ke PATRA Digital Hub",
+  title: "HMTM \"PATRA\" ITB — Autentikasi",
+  description: "Login atau daftar ke HMTM \"PATRA\" ITB",
 };
 
 export default function AuthLayout({

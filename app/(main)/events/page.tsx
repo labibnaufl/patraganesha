@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "Events",
   description: "Daftar event dan kegiatan terbaru dari PATRA Ganesha HMTM ITB.",
   openGraph: {
-    title: "Events | PATRA Digital Hub",
+    title: "Events | HMTM \"PATRA\" ITB",
     description: "Kegiatan dan acara terbaru PATRA Ganesha.",
   },
 };

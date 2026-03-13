@@ -3,9 +3,9 @@ import Link from "next/link";
 import { FileText } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Syarat & Ketentuan — PATRA Digital Hub",
+  title: "Syarat & Ketentuan — HMTM \"PATRA\" ITB",
   description:
-    "Syarat dan ketentuan penggunaan platform PATRA Digital Hub, platform digital resmi HMTM PATRA ITB Ganesha.",
+    "Syarat dan ketentuan penggunaan platform HMTM &quot;PATRA&quot; ITB, platform digital resmi HMTM PATRA ITB Ganesha.",
 };
 
 export default function TermsPage() {
@@ -32,7 +32,7 @@ export default function TermsPage() {
         {/* Intro */}
         <section>
           <p>
-            Dengan mengakses dan menggunakan <strong>PATRA Digital Hub</strong>,
+            Dengan mengakses dan menggunakan <strong>HMTM &quot;PATRA&quot; ITB</strong>,
             Anda setuju untuk terikat oleh syarat dan ketentuan berikut. Harap
             baca dengan seksama sebelum menggunakan platform ini.
           </p>
@@ -43,7 +43,7 @@ export default function TermsPage() {
           <h2 className="text-xl font-bold mb-3">1. Definisi</h2>
           <ul className="list-disc pl-5 space-y-1 mt-2">
             <li>
-              <strong>Platform</strong>: PATRA Digital Hub yang dapat diakses
+              <strong>Platform</strong>: HMTM &quot;PATRA&quot; ITB yang dapat diakses
               melalui domain resmi.
             </li>
             <li>
@@ -129,7 +129,7 @@ export default function TermsPage() {
             5. Hak Kekayaan Intelektual
           </h2>
           <p>
-            Seluruh konten yang dibuat oleh tim PATRA Digital Hub (desain, logo,
+            Seluruh konten yang dibuat oleh tim HMTM &quot;PATRA&quot; ITB (desain, logo,
             teks resmi) dilindungi oleh hak cipta. Konten yang dikirimkan oleh
             pengguna tetap menjadi hak milik pengguna, namun dengan mendunggah
             konten tersebut, Anda memberikan lisensi kepada PATRA Digital Hub
@@ -144,7 +144,7 @@ export default function TermsPage() {
             6. Pembatasan Tanggung Jawab
           </h2>
           <p>
-            PATRA Digital Hub disediakan &ldquo;sebagaimana adanya&rdquo;. Kami
+            HMTM &quot;PATRA&quot; ITB disediakan &ldquo;sebagaimana adanya&rdquo;. Kami
             tidak menjamin ketersediaan platform 24/7 dan tidak bertanggung
             jawab atas kerugian yang timbul akibat gangguan layanan, kesalahan
             konten yang diunggah pengguna, atau penggunaan platform yang

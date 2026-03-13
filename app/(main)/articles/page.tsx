@@ -5,7 +5,7 @@ import { ArticleCard } from "./_components/article-card";
 import { ArticleFilters } from "./_components/article-filters";
 
 export const metadata = {
-  title: "Artikel | PATRA Digital Hub",
+  title: "Artikel | HMTM \"PATRA\" ITB",
   description:
     "Baca artikel terbaru seputar energi, non-energi, dan isu umum dari PATRA Ganesha.",
 };

@@ -16,7 +16,7 @@ export function HeroMaskEffect({
        * screen-readers index the page title even when the mask is closed.
        * Not visible to sighted users (the real heading lives inside the mask).
        */}
-      <h1 className="sr-only">PATRA Digital Hub</h1>
+      <h1 className="sr-only">HMTM &quot;PATRA&quot; ITB</h1>
 
       <MaskContainer
         revealText={

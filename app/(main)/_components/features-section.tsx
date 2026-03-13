@@ -49,7 +49,7 @@ export function FeaturesSection() {
             Semua yang Kamu Butuhkan Ada di Sini
           </h2>
           <p className="text-lg text-muted-foreground">
-            PATRA Digital Hub menyediakan berbagai fitur yang dapat membantu
+            HMTM &quot;PATRA&quot; ITB menyediakan berbagai fitur yang dapat membantu
             kamu dalam mengakses informasi dan kegiatan PATRA.
           </p>
         </div>

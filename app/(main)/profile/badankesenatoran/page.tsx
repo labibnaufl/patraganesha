@@ -4,7 +4,7 @@ import { VisionMission } from "../_components/vision-mission-kesenatoran";
 import { PatraMembersKesenatoran } from "../_components/patra-member-kesenatoran";
 
 export const metadata: Metadata = {
-  title: "Badan Kesenatoran | PATRA Digital Hub",
+  title: "Badan Kesenatoran | HMTM \"PATRA\" ITB",
   description:
     "Kenali Badan Kesenatoran Himpunan Mahasiswa Teknik Perminyakan 'PATRA' ITB.",
 };

@@ -3,9 +3,9 @@ import Link from "next/link";
 import { Shield } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Kebijakan Privasi — PATRA Digital Hub",
+  title: "Kebijakan Privasi — HMTM \"PATRA\" ITB",
   description:
-    "Kebijakan privasi PATRA Digital Hub menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.",
+    "Kebijakan privasi HMTM &quot;PATRA&quot; ITB menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.",
 };
 
 export default function PrivacyPolicyPage() {
@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
         {/* Intro */}
         <section>
           <p>
-            Selamat datang di <strong>PATRA Digital Hub</strong>, platform
+            Selamat datang di <strong>HMTM &quot;PATRA&quot; ITB</strong>, platform
             digital resmi HMTM &ldquo;PATRA&rdquo; ITB Ganesha. Kebijakan
             privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan,
             menyimpan, dan melindungi data pribadi Anda saat menggunakan layanan

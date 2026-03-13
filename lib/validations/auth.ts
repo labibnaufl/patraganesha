@@ -21,7 +21,11 @@ export const registerSchema = z
     email: z
       .string()
       .min(1, "Email wajib diisi")
-      .email("Format email tidak valid"),
+      .email("Format email tidak valid")
+      .refine(
+        (val) => val.toLowerCase().endsWith("@mahasiswa.itb.ac.id"),
+        "Hanya email @mahasiswa.itb.ac.id yang diizinkan pendaftaran",
+      ),
     password: z
       .string()
       .min(1, "Password wajib diisi")

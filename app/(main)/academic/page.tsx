@@ -5,11 +5,11 @@ import { AcademicFilters } from "./_components/academic-filters";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Info Akademik | PATRA Digital Hub",
+  title: "Info Akademik | HMTM \"PATRA\" ITB",
   description:
     "Informasi lomba, beasiswa, dan info kampus terbaru dari PATRA Ganesha HMTM ITB.",
   openGraph: {
-    title: "Info Akademik | PATRA Digital Hub",
+    title: "Info Akademik | HMTM \"PATRA\" ITB",
     description: "Lomba, Beasiswa, dan Info Kampus dari PATRA Ganesha.",
   },
 };

@@ -50,7 +50,7 @@ export default function RegisterPage() {
     <div>
       <h2 className="text-2xl font-bold text-[#FF6E00] font-heading">Daftar</h2>
       <p className="text-sm text-gray-400 mt-1 mb-7">
-        Buat akun PATRA Digital Hub
+        Buat akun HMTM &quot;PATRA&quot; ITB
       </p>
 
       {state?.error && (

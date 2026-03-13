@@ -4,7 +4,7 @@ import { VisionMission } from "../_components/vision-mission-bpa";
 import { PatraMembersBPA } from "../_components/patra-member-bpa";
 
 export const metadata: Metadata = {
-  title: "Badan Perwakilan Angkatan | PATRA Digital Hub",
+  title: "Badan Perwakilan Angkatan | HMTM \"PATRA\" ITB",
   description:
     "Kenali Badan Perwakilan Angkatan Himpunan Mahasiswa Teknik Perminyakan 'PATRA' ITB.",
 };
