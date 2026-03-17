@@ -1,4 +1,4 @@
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 import "dotenv/config";
 
 export default defineConfig({
@@ -8,7 +8,6 @@ export default defineConfig({
     seed: "bun run prisma/seed.ts",
   },
   datasource: {
-    // URL dengan pooler untuk koneksi aplikasi biasa
-    url: env("DATABASE_URL"),
+    url: process.env.DATABASE_URL ?? "postgresql://placeholder",
   },
 });
