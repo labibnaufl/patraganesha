@@ -67,6 +67,9 @@ jobs:
           # The standalone build needs the public folder and static assets copied into it
           cp -r public .next/standalone/
           cp -r .next/static .next/standalone/.next/
+          # Copy prisma and lib so the generated Prisma client is available
+          cp -r prisma .next/standalone/
+          cp -r lib .next/standalone/
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
