@@ -59,10 +59,14 @@ jobs:
         run: ./node_modules/.bin/prisma generate
 
       # ─────────────────────────────────────────
-      # 6. Build Next.js app
+      # 6. Build Next.js app (output: standalone)
       # ─────────────────────────────────────────
       - name: Build Next.js
-        run: npm run build
+        run: |
+          npm run build
+          # The standalone build needs the public folder and static assets copied into it
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
@@ -101,7 +105,7 @@ jobs:
           # Trust the server's host key
           ssh-keyscan -p 65002 -H 147.93.80.85 >> ~/.ssh/known_hosts
 
-          # Rsync everything to the server (node_modules + .next are pre-built)
+          # Rsync the standalone build directory to the server
           rsync -avz --delete \
             --exclude='.git' \
             --exclude='.github' \
@@ -109,7 +113,7 @@ jobs:
             --exclude='.htaccess' \
             --exclude='src' \
             -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
-            ./ \
+            .next/standalone/ \
             u537263380@147.93.80.85:~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html/
 
       # ─────────────────────────────────────────
@@ -134,7 +138,7 @@ jobs:
 
             pm2 describe patra-digital-hub > /dev/null 2>&1 \
               && pm2 restart patra-digital-hub \
-              || pm2 start "node_modules/.bin/next start -p 3000" --name patra-digital-hub
+              || pm2 start "server.js" --name patra-digital-hub
 
             pm2 save
           ENDSSH
