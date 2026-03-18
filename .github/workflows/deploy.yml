@@ -44,7 +44,14 @@ jobs:
         run: ./node_modules/.bin/prisma generate
 
       - name: Build Next.js
-        run: npm run build
+        run: |
+          npm run build
+          # The standalone build needs the public folder and static assets copied into it
+          cp -r public .next/standalone/
+          cp -r .next/static .next/standalone/.next/
+          # Copy prisma and lib so the generated Prisma client is available
+          cp -r prisma .next/standalone/
+          cp -r lib .next/standalone/
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
@@ -78,7 +85,7 @@ jobs:
             --exclude='.htaccess' \
             --exclude='src' \
             -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
-            ./ \
+            .next/standalone/ \
             u537263380@147.93.80.85:~/domains/patraganesha.org/public_html/
 
       - name: Restart app on server via SSH
@@ -99,7 +106,7 @@ jobs:
 
             pm2 describe patra-digital-hub > /dev/null 2>&1 \
               && pm2 restart patra-digital-hub \
-              || pm2 start "node_modules/.bin/next start -p 3000" --name patra-digital-hub
+              || pm2 start "server.js" --name patra-digital-hub
 
             pm2 save
           ENDSSH
