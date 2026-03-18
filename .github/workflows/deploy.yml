@@ -1,59 +1,156 @@
-name: Deploy to Hostinger
+name: Build and Deploy to Hostinger
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    steps:
+      # ─────────────────────────────────────────
+      # 1. Checkout source code
+      # ─────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────
+      # 2. Set up Node.js
+      # ─────────────────────────────────────────
+      - name: Set up Node.js 20
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
+      # ─────────────────────────────────────────
+      # 3. Install ALL dependencies (including devDeps for prisma, typescript, etc.)
+      # ─────────────────────────────────────────
       - name: Install dependencies
         run: npm ci
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
 
-      - name: Build
+      # ─────────────────────────────────────────
+      # 4. Create .env for build
+      # ─────────────────────────────────────────
+      - name: Create .env file
+        run: |
+          cat <<EOF > .env
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+          NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+          CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+          AUTH_SECRET=${{ secrets.AUTH_SECRET }}
+          SMTP_HOST=${{ secrets.SMTP_HOST }}
+          SMTP_PORT=${{ secrets.SMTP_PORT }}
+          SMTP_USER=${{ secrets.SMTP_USER }}
+          SMTP_PASS=${{ secrets.SMTP_PASS }}
+          SMTP_FROM=${{ secrets.SMTP_FROM }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          EOF
+
+      # ─────────────────────────────────────────
+      # 5. Generate Prisma client
+      # ─────────────────────────────────────────
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      # ─────────────────────────────────────────
+      # 6. Build Next.js app
+      # ─────────────────────────────────────────
+      - name: Build Next.js
         run: npm run build
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DIRECT_URL: ${{ secrets.DIRECT_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
-          SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL }}
-          SUPER_ADMIN_PASSWORD: ${{ secrets.SUPER_ADMIN_PASSWORD }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
-          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
-          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
 
-      - name: Deploy to server
+      # ─────────────────────────────────────────
+      # 7. Install production-only deps (to ship to server without devDeps)
+      #    We use --ignore-scripts so postinstall (prisma generate) is skipped —
+      #    the Prisma client was already generated and is inside ./node_modules
+      # ─────────────────────────────────────────
+      - name: Install production node_modules
+        run: npm ci --omit=dev --ignore-scripts
+
+      # ─────────────────────────────────────────
+      # 8. Collect the Prisma generated client back (it was wiped by npm ci --omit=dev)
+      #    We re-generate it so it ships inside node_modules to the server
+      # ─────────────────────────────────────────
+      - name: Re-generate Prisma client into prod node_modules
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      # ─────────────────────────────────────────
+      # 9. Scan server host key (prevents "Host key verification failed")
+      # ─────────────────────────────────────────
+      - name: Add server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p 65002 -H 147.93.80.85 >> ~/.ssh/known_hosts
+
+      # ─────────────────────────────────────────
+      # 10. Copy built app to server via rsync
+      #     We sync: .next/, public/, node_modules/, package.json, prisma/
+      # ─────────────────────────────────────────
+      - name: Deploy files to server via rsync
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: >-
+            -avz
+            --delete
+            --exclude='.git'
+            --exclude='.github'
+            --exclude='.env'
+            --exclude='src'
+          path: ./
+          remote_path: ~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html/
+          remote_host: 147.93.80.85
+          remote_port: 65002
+          remote_user: u537263380
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      # ─────────────────────────────────────────
+      # 11. SSH into server: install PM2 (if missing) and restart app
+      # ─────────────────────────────────────────
+      - name: Restart app on server via SSH
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
+          host: 147.93.80.85
+          port: 65002
+          username: u537263380
+          key: ${{ secrets.DEPLOY_KEY }}
           script: |
+            # Load NVM so node/npm/pm2 commands are available
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            cd ~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html
-            git pull origin main
-            npm ci --production
-            npm run build
-            pm2 restart patra || pm2 start npm --name "patra" -- start
+
+            # Install PM2 globally if not already installed
+            if ! command -v pm2 &> /dev/null; then
+              npm install -g pm2
+            fi
+
+            APP_DIR=~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html
+
+            # Restart or start the app with PM2
+            cd $APP_DIR
+            pm2 describe patra-digital-hub > /dev/null 2>&1 \
+              && pm2 restart patra-digital-hub \
+              || pm2 start "node_modules/.bin/next start -p 3000" --name patra-digital-hub
+
+            # Save PM2 process list so it survives server restarts
             pm2 save
