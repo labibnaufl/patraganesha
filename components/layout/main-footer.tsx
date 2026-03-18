@@ -135,17 +135,6 @@ export function MainFooter() {
             dilindungi.
           </p>
           <div className="text-xs text-muted-foreground flex gap-4">
-            <span>
-              Dibuat dengan ✨ oleh{" "}
-              <a
-                href="https://github.com/labibnaufl"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary transition-colors"
-              >
-                @labibnugrh
-              </a>
-            </span>
           </div>
         </div>
       </div>
