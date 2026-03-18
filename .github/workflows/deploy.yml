@@ -105,8 +105,8 @@ jobs:
             cd $APP_DIR
 
             pm2 describe patra-digital-hub > /dev/null 2>&1 \
-              && pm2 restart patra-digital-hub \
-              || pm2 start "server.js" --name patra-digital-hub
+              && HOSTNAME=127.0.0.1 PORT=3000 pm2 restart patra-digital-hub --update-env \
+              || HOSTNAME=127.0.0.1 PORT=3000 pm2 start "server.js" --name patra-digital-hub
 
             pm2 save
           ENDSSH
