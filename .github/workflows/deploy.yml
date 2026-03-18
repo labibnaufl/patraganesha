@@ -86,61 +86,54 @@ jobs:
         run: npm prune --omit=dev
 
       # ─────────────────────────────────────────
-      # 9. Scan server host key (prevents "Host key verification failed")
-      # ─────────────────────────────────────────
-      - name: Add server to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -p 65002 -H 147.93.80.85 >> ~/.ssh/known_hosts
-
-      # ─────────────────────────────────────────
-      # 10. Copy built app to server via rsync
-      #     We sync: .next/, public/, node_modules/, package.json, prisma/
+      # 8. Set up SSH key + known_hosts, then rsync built app to server
+      #    (Writing key to file avoids 'error in libcrypto' from stdin mangling)
       # ─────────────────────────────────────────
       - name: Deploy files to server via rsync
-        uses: burnett01/rsync-deployments@7.0.1
-        with:
-          switches: >-
-            -avz
-            --delete
-            --exclude='.git'
-            --exclude='.github'
-            --exclude='.env'
-            --exclude='src'
-          path: ./
-          remote_path: ~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html/
-          remote_host: 147.93.80.85
-          remote_port: 65002
-          remote_user: u537263380
-          remote_key: ${{ secrets.DEPLOY_KEY }}
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+        run: |
+          # Write the private key to a temp file with strict permissions
+          mkdir -p ~/.ssh
+          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+          # Trust the server's host key
+          ssh-keyscan -p 65002 -H 147.93.80.85 >> ~/.ssh/known_hosts
+
+          # Rsync everything to the server (node_modules + .next are pre-built)
+          rsync -avz --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            --exclude='src' \
+            -e "ssh -i ~/.ssh/deploy_key -p 65002 -o StrictHostKeyChecking=no" \
+            ./ \
+            u537263380@147.93.80.85:~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html/
 
       # ─────────────────────────────────────────
-      # 11. SSH into server: install PM2 (if missing) and restart app
+      # 9. SSH into server: install PM2 (if missing) and restart app
+      #    (reuses ~/.ssh/deploy_key written in step 8)
       # ─────────────────────────────────────────
       - name: Restart app on server via SSH
-        uses: appleboy/ssh-action@v1
-        with:
-          host: 147.93.80.85
-          port: 65002
-          username: u537263380
-          key: ${{ secrets.DEPLOY_KEY }}
-          script: |
-            # Load NVM so node/npm/pm2 commands are available
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            -p 65002 \
+            -o StrictHostKeyChecking=no \
+            u537263380@147.93.80.85 << 'ENDSSH'
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            # Install PM2 globally if not already installed
             if ! command -v pm2 &> /dev/null; then
               npm install -g pm2
             fi
 
             APP_DIR=~/domains/lightgrey-mandrill-137132.hostingersite.com/public_html
-
-            # Restart or start the app with PM2
             cd $APP_DIR
+
             pm2 describe patra-digital-hub > /dev/null 2>&1 \
               && pm2 restart patra-digital-hub \
               || pm2 start "node_modules/.bin/next start -p 3000" --name patra-digital-hub
 
-            # Save PM2 process list so it survives server restarts
             pm2 save
+          ENDSSH
