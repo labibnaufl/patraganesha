@@ -91,7 +91,7 @@ jobs:
       # ─────────────────────────────────────────
       - name: Deploy files to server via rsync
         env:
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
+          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
         run: |
           # Write the private key to a temp file with strict permissions
           mkdir -p ~/.ssh
