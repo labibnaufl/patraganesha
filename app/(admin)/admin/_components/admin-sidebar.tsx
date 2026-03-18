@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import {
   LayoutDashboard,
@@ -6,7 +6,6 @@ import {
   FileText,
   CalendarDays,
   GraduationCap,
-  Tags,
   ScrollText,
   type LucideIcon,
 } from "lucide-react";
@@ -45,7 +44,6 @@ const contentNav: NavItem[] = [
   { title: "Artikel", url: "/admin/articles", icon: FileText },
   { title: "Event", url: "/admin/events", icon: CalendarDays },
   { title: "Info Akademik", url: "/admin/academic", icon: GraduationCap },
-  { title: "Tags", url: "/admin/tags", icon: Tags },
 ];
 
 const systemNav: NavItem[] = [
