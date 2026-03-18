@@ -19,6 +19,11 @@
 .DS_Store
 *.pem
 
+# SSH deploy keys (never commit private keys!)
+deploy_key
+deploy_key.pub
+
+
 # debug
 npm-debug.log*
 yarn-debug.log*
