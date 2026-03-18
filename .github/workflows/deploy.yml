@@ -53,10 +53,10 @@ jobs:
           EOF
 
       # ─────────────────────────────────────────
-      # 5. Generate Prisma client
+      # 5. Generate Prisma client (use LOCAL binary, not npx which fetches latest)
       # ─────────────────────────────────────────
       - name: Generate Prisma Client
-        run: npx prisma generate
+        run: ./node_modules/.bin/prisma generate
 
       # ─────────────────────────────────────────
       # 6. Build Next.js app
@@ -79,21 +79,11 @@ jobs:
           NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
 
       # ─────────────────────────────────────────
-      # 7. Install production-only deps (to ship to server without devDeps)
-      #    We use --ignore-scripts so postinstall (prisma generate) is skipped —
-      #    the Prisma client was already generated and is inside ./node_modules
+      # 7. Strip devDependencies in-place (keeps already-generated Prisma client
+      #    in node_modules/.prisma and node_modules/@prisma/client intact)
       # ─────────────────────────────────────────
-      - name: Install production node_modules
-        run: npm ci --omit=dev --ignore-scripts
-
-      # ─────────────────────────────────────────
-      # 8. Collect the Prisma generated client back (it was wiped by npm ci --omit=dev)
-      #    We re-generate it so it ships inside node_modules to the server
-      # ─────────────────────────────────────────
-      - name: Re-generate Prisma client into prod node_modules
-        run: npx prisma generate
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      - name: Prune devDependencies for production
+        run: npm prune --omit=dev
 
       # ─────────────────────────────────────────
       # 9. Scan server host key (prevents "Host key verification failed")
