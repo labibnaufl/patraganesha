@@ -3,6 +3,8 @@ const { parse } = require('url')
 const next = require('next')
 const path = require('path')
 
+process.chdir(__dirname)
+
 const app = next({ dev: false })
 const handle = app.getRequestHandler()
 
