@@ -1,20 +1,14 @@
-import { neonConfig, Pool } from '@neondatabase/serverless'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from './generated/prisma'
-import ws from 'ws'
-
-// Required for Node.js (non-edge) environments:
-// Neon serverless driver needs a WebSocket constructor
-neonConfig.webSocketConstructor = ws
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
 function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL!
-  const pool = new Pool({ connectionString })
-  const adapter = new PrismaNeon(pool)
+  // PrismaNeon uses Neon's HTTP transport (fetch-based, no binary engine, no WebSocket)
+  // Works reliably on Node.js 18+ (native fetch) and shared hosting environments
+  const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! })
   return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
@@ -23,5 +17,5 @@ function createPrismaClient() {
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-// Always cache globally to ensure a single instance across requests
+// Cache globally to ensure a single instance across all requests
 globalForPrisma.prisma = prisma
