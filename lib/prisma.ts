@@ -1,31 +1,27 @@
-import { PrismaClient } from "./generated/prisma"
+import { neonConfig, Pool } from '@neondatabase/serverless'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import { PrismaClient } from './generated/prisma'
+import ws from 'ws'
+
+// Required for Node.js (non-edge) environments:
+// Neon serverless driver needs a WebSocket constructor
+neonConfig.webSocketConstructor = ws
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-// Add connection_limit=1 and pool_timeout for shared hosting environments
-// This prevents exhausting OS-level timers and file descriptors on Hostinger
-function buildDatabaseUrl() {
-  const url = process.env.DATABASE_URL ?? ''
-  if (!url) return url
-  const separator = url.includes('?') ? '&' : '?'
-  // Only add if not already set
-  if (url.includes('connection_limit')) return url
-  return `${url}${separator}connection_limit=1&pool_timeout=10`
+function createPrismaClient() {
+  const connectionString = process.env.DATABASE_URL!
+  const pool = new Pool({ connectionString })
+  const adapter = new PrismaNeon(pool)
+  return new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  })
 }
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-    datasources: {
-      db: {
-        url: buildDatabaseUrl(),
-      }
-    }
-  })
+export const prisma = globalForPrisma.prisma ?? createPrismaClient()
 
-// Always cache globally — in production, prevents re-instantiation
-// In development, prevents hot-reload from creating multiple instances
+// Always cache globally to ensure a single instance across requests
 globalForPrisma.prisma = prisma
