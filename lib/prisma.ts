@@ -1,28 +1,27 @@
-import { neonConfig } from '@neondatabase/serverless'
-import { PrismaNeon } from '@prisma/adapter-neon'
+import 'server-only'
+import { PrismaNeonHttp } from '@prisma/adapter-neon'
 import { PrismaClient } from './generated/prisma'
-import ws from 'ws'
-
-// Required for Node.js (non-edge) environments:
-// Neon serverless driver's WebSocket transport needs a native constructor
-neonConfig.webSocketConstructor = ws
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined
 }
 
 function createPrismaClient() {
-  // Use DIRECT_URL — PrismaNeon is an HTTP/WebSocket adapter and does NOT go through PgBouncer.
-  // DATABASE_URL has pgbouncer=true which drops WebSockets prematurely causing "Connection closed"
+  // Use DIRECT_URL or DATABASE_URL.
+  // PrismaNeonHttp uses stateless HTTP fetch instead of WebSockets.
+  // This eliminates the "Connection closed" error entirely because it 
+  // never opens a persistent connection that can be dropped.
   const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL!
-  const adapter = new PrismaNeon({ connectionString })
+  
+  // Create an HTTP-based adapter (no ws dependency required)
+  const adapter = new PrismaNeonHttp(connectionString)
 
   const client = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   })
 
-  // Add retry logic to handle Neon cold-start "Connection closed" errors.
+  // Add retry logic to handle Neon cold-start HTTP errors (e.g. 503 Gateway Timeout)
   // Neon free tier suspends the DB after ~5 min of inactivity.
   // The first request wakes it up but may fail — retry up to 3 times.
   return client.$extends({
@@ -34,11 +33,15 @@ function createPrismaClient() {
             return await query(args)
           } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : String(e)
+            
+            // Catch connection, socket, or HTTP gateway errors
             const isConnectionError =
               msg.includes('Connection closed') ||
               msg.includes('connection') ||
               msg.includes('ECONNRESET') ||
-              msg.includes('socket')
+              msg.includes('socket') ||
+              msg.includes('503') ||
+              msg.includes('timeout')
 
             if (attempt < MAX_RETRIES - 1 && isConnectionError) {
               // Wait before retrying: 500ms, 1500ms
