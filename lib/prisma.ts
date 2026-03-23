@@ -14,7 +14,11 @@ function createPrismaClient() {
   const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL!
   
   // Create an HTTP-based adapter (no ws dependency required)
-  const adapter = new PrismaNeonHttp(connectionString)
+  const adapter = new PrismaNeonHttp(connectionString, {
+    fetchOptions: {
+      cache: 'no-store', // ensures Next.js doesn't aggressively cache fetch queries
+    },
+  })
 
   const client = new PrismaClient({
     adapter,
