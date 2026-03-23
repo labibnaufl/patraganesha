@@ -1,13 +1,19 @@
+import { neonConfig } from '@neondatabase/serverless'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from './generated/prisma'
+import ws from 'ws'
+
+// Required for Node.js (non-edge) environments:
+// Neon serverless driver's WebSocket transport needs a native constructor
+neonConfig.webSocketConstructor = ws
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined
 }
 
 function createPrismaClient() {
-  // Use DIRECT_URL — PrismaNeon is an HTTP adapter and does NOT go through PgBouncer.
-  // DATABASE_URL has pgbouncer=true which is only for the binary engine.
+  // Use DIRECT_URL — PrismaNeon is an HTTP/WebSocket adapter and does NOT go through PgBouncer.
+  // DATABASE_URL has pgbouncer=true which drops WebSockets prematurely causing "Connection closed"
   const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL!
   const adapter = new PrismaNeon({ connectionString })
 
