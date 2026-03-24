@@ -14,8 +14,13 @@ function createPrismaClient() {
   const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL!
   
   // Create an HTTP-based adapter (no ws dependency required)
-  // Passing {} satisfies TypeScript without interfering with Next.js static generation cache
-  const adapter = new PrismaNeonHttp(connectionString, {})
+  // We MUST use cache: 'no-store' because Next.js aggressively caches fetch requests.
+  // Without it, Next.js throws 500 errors on dynamic admin pages (RSC render crashes).
+  const adapter = new PrismaNeonHttp(connectionString, {
+    fetchOptions: {
+      cache: 'no-store',
+    },
+  })
 
   const client = new PrismaClient({
     adapter,

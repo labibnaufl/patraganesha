@@ -4,6 +4,8 @@ import { FeaturedArticle } from "./_components/featured-article";
 import { ArticleCard } from "./_components/article-card";
 import { ArticleFilters } from "./_components/article-filters";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Artikel | HMTM \"PATRA\" ITB",
   description:
