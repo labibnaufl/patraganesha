@@ -35,8 +35,10 @@ import {
   updateUserRole,
   archiveUser,
   unarchiveUser,
+  deleteUser,
 } from "../_lib/actions";
 import { BanUserDialog } from "./_components/ban-user-dialog";
+import { DeleteUserDialog } from "./_components/delete-user-dialog";
 import { useState } from "react";
 
 type User = {
@@ -50,6 +52,7 @@ type User = {
 export function UserActions({ user }: { user: User }) {
   const [isPending, startTransition] = useTransition();
   const [showBanDialog, setShowBanDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const isSelf = false; // Handled server-side
   const isSuperAdmin = user.role === "SUPER_ADMIN";
@@ -198,12 +201,25 @@ export function UserActions({ user }: { user: User }) {
           {!isSuperAdmin && (
             <>
               {user.status === "ARCHIVED" ? (
-                <DropdownMenuItem
-                  onClick={() => startTransition(() => unarchiveUser(user.id))}
-                >
-                  <ArchiveRestore className="size-4 mr-2" />
-                  Aktifkan Kembali
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    onClick={() => startTransition(() => unarchiveUser(user.id))}
+                  >
+                    <ArchiveRestore className="size-4 mr-2" />
+                    Aktifkan Kembali
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={(e) => {
+                      e.preventDefault();
+                      setShowDeleteDialog(true);
+                    }}
+                    className="text-red-700 font-medium"
+                  >
+                    <Ban className="size-4 mr-2" />
+                    Hapus Permanen
+                  </DropdownMenuItem>
+                </>
               ) : (
                 user.status !== "PENDING" && (
                   <DropdownMenuItem
@@ -227,6 +243,16 @@ export function UserActions({ user }: { user: User }) {
         onOpenChange={setShowBanDialog}
         onBan={async (id, reason) => {
           startTransition(() => banUser(id, reason));
+        }}
+      />
+
+      <DeleteUserDialog
+        userId={user.id}
+        userName={user.name}
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        onDelete={async (id) => {
+          startTransition(() => deleteUser(id));
         }}
       />
     </>

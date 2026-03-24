@@ -207,3 +207,43 @@ export async function unarchiveUser(userId: string) {
   revalidatePath("/admin/users");
   revalidatePath(`/admin/users/${userId}`);
 }
+
+export async function deleteUser(userId: string) {
+  const session = await requireAdminAction();
+
+  // Prevent deleting yourself
+  if (userId === session.user.id) {
+    throw new Error("Tidak bisa menghapus diri sendiri");
+  }
+
+  // Double check that the user is really ARCHIVED (safety mechanism)
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { status: true, name: true, email: true },
+  });
+
+  if (!user) {
+    throw new Error("Pengguna tidak ditemukan");
+  }
+
+  if (user.status !== "ARCHIVED") {
+    throw new Error("Pengguna hanya dapat dihapus jika berstatus Diarsipkan");
+  }
+
+  // Perform permanent deletion
+  await prisma.user.delete({
+    where: { id: userId },
+  });
+
+  await prisma.adminLog.create({
+    data: {
+      action: "DELETE_USER",
+      entity: "User",
+      entityId: userId,
+      details: `Permanently deleted user: ${user.name} (${user.email})`,
+      userId: session.user.id,
+    },
+  });
+
+  revalidatePath("/admin/users");
+}
