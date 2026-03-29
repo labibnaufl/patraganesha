@@ -153,15 +153,14 @@ export async function registerForEventAction(eventId: string) {
   });
   if (existing) return { error: "Kamu sudah terdaftar di event ini." };
 
-  await prisma.$transaction([
-    prisma.eventAttendance.create({
-      data: { userId, eventId, status: "REGISTERED" },
-    }),
-    prisma.event.update({
-      where: { id: eventId },
-      data: { currentParticipants: { increment: 1 } },
-    }),
-  ]);
+  // Neon HTTP adapter does not support transactions — use sequential awaits
+  await prisma.eventAttendance.create({
+    data: { userId, eventId, status: "REGISTERED" },
+  });
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { currentParticipants: { increment: 1 } },
+  });
 
   revalidatePath(`/events`);
   revalidatePath(`/events/${event.slug}`);
@@ -187,16 +186,15 @@ export async function cancelEventRegistrationAction(eventId: string) {
     select: { slug: true },
   });
 
-  await prisma.$transaction([
-    prisma.eventAttendance.update({
-      where: { id: attendance.id },
-      data: { status: "CANCELLED", cancelledAt: new Date() },
-    }),
-    prisma.event.update({
-      where: { id: eventId },
-      data: { currentParticipants: { decrement: 1 } },
-    }),
-  ]);
+  // Neon HTTP adapter does not support transactions — use sequential awaits
+  await prisma.eventAttendance.update({
+    where: { id: attendance.id },
+    data: { status: "CANCELLED", cancelledAt: new Date() },
+  });
+  await prisma.event.update({
+    where: { id: eventId },
+    data: { currentParticipants: { decrement: 1 } },
+  });
 
   revalidatePath(`/events`);
   if (event) revalidatePath(`/events/${event.slug}`);
@@ -241,40 +239,35 @@ export async function uploadAttendanceProofAction(
 
   const shouldAutoVerify = attendance.event.autoVerify;
 
-  await prisma.$transaction([
-    prisma.attendanceProof.create({
+  // Neon HTTP adapter does not support transactions — use sequential awaits
+  await prisma.attendanceProof.create({
+    data: {
+      attendanceId,
+      url: proofData.url,
+      publicId: proofData.publicId,
+      thumbnailUrl: proofData.thumbnailUrl,
+      format: proofData.format,
+      width: proofData.width,
+      height: proofData.height,
+      fileSize: proofData.fileSize,
+      caption: proofData.caption ?? null,
+    },
+  });
+  if (shouldAutoVerify) {
+    await prisma.eventAttendance.update({
+      where: { id: attendanceId },
       data: {
-        attendanceId,
-        url: proofData.url,
-        publicId: proofData.publicId,
-        thumbnailUrl: proofData.thumbnailUrl,
-        format: proofData.format,
-        width: proofData.width,
-        height: proofData.height,
-        fileSize: proofData.fileSize,
-        caption: proofData.caption ?? null,
+        status: "ATTENDED",
+        attendedAt: new Date(),
+        verifiedAt: new Date(),
       },
-    }),
-    ...(shouldAutoVerify
-      ? [
-          prisma.eventAttendance.update({
-            where: { id: attendanceId },
-            data: {
-              status: "ATTENDED",
-              attendedAt: new Date(),
-              verifiedAt: new Date(),
-            },
-          }),
-        ]
-      : attendance.status === "REGISTERED" || attendance.status === "ATTENDING"
-        ? [
-            prisma.eventAttendance.update({
-              where: { id: attendanceId },
-              data: { status: "ATTENDING", attendingAt: new Date() },
-            }),
-          ]
-        : []),
-  ]);
+    });
+  } else if (attendance.status === "REGISTERED" || attendance.status === "ATTENDING") {
+    await prisma.eventAttendance.update({
+      where: { id: attendanceId },
+      data: { status: "ATTENDING", attendingAt: new Date() },
+    });
+  }
 
   revalidatePath(`/events/${attendance.event.slug}`);
   return { success: true };

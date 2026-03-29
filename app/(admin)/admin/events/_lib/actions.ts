@@ -214,39 +214,38 @@ export async function updateEvent(
   const shouldPublish = formData.get("action") === "publish";
   const wasPublished = existingEvent.status === "PUBLISHED";
 
-  await prisma.$transaction([
-    prisma.eventTag.deleteMany({ where: { eventId: id } }),
-    prisma.event.update({
-      where: { id },
-      data: {
-        title,
-        slug,
-        description,
-        coverImage,
-        startDate: new Date(startDate),
-        endDate: parseDate(endDate),
-        locationType,
-        location: location || null,
-        registrationLink: registrationLink || null,
-        registrationDeadline: parseDate(registrationDeadline),
-        maxParticipants: maxParticipants ?? null,
-        contactPerson: contactPerson || null,
-        contactEmail: contactEmail || null,
-        contactPhone: contactPhone || null,
-        requireProof,
-        autoVerify,
-        maxProofsPerUser,
-        status: shouldPublish ? "PUBLISHED" : existingEvent.status, // Preserve current status (DRAFT or ARCHIVED) when not explicitly publishing
-        publishedAt:
-          shouldPublish && !wasPublished
-            ? new Date()
-            : existingEvent.publishedAt,
-        tags: {
-          create: tagIds.map((tagId) => ({ tagId })),
-        },
+  // Neon HTTP adapter does not support transactions — use sequential awaits
+  await prisma.eventTag.deleteMany({ where: { eventId: id } });
+  await prisma.event.update({
+    where: { id },
+    data: {
+      title,
+      slug,
+      description,
+      coverImage,
+      startDate: new Date(startDate),
+      endDate: parseDate(endDate),
+      locationType,
+      location: location || null,
+      registrationLink: registrationLink || null,
+      registrationDeadline: parseDate(registrationDeadline),
+      maxParticipants: maxParticipants ?? null,
+      contactPerson: contactPerson || null,
+      contactEmail: contactEmail || null,
+      contactPhone: contactPhone || null,
+      requireProof,
+      autoVerify,
+      maxProofsPerUser,
+      status: shouldPublish ? "PUBLISHED" : existingEvent.status,
+      publishedAt:
+        shouldPublish && !wasPublished
+          ? new Date()
+          : existingEvent.publishedAt,
+      tags: {
+        create: tagIds.map((tagId) => ({ tagId })),
       },
-    }),
-  ]);
+    },
+  });
 
   await createAdminLog({
     adminId: session.user.id,

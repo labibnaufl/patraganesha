@@ -191,36 +191,35 @@ export async function updateArticle(
   const shouldPublish = formData.get("action") === "publish";
   const wasPublished = article.status === "PUBLISHED";
 
-  await prisma.$transaction([
-    prisma.articleTag.deleteMany({ where: { articleId: id } }),
-    prisma.article.update({
-      where: { id },
-      data: {
-        title,
-        slug,
-        excerpt,
-        content,
-        category: category as "ENERGI" | "NON_ENERGI" | "UMUM",
-        coverImage,
-        status: shouldPublish
+  // Neon HTTP adapter does not support transactions — use sequential awaits
+  await prisma.articleTag.deleteMany({ where: { articleId: id } });
+  await prisma.article.update({
+    where: { id },
+    data: {
+      title,
+      slug,
+      excerpt,
+      content,
+      category: category as "ENERGI" | "NON_ENERGI" | "UMUM",
+      coverImage,
+      status: shouldPublish
+        ? "PUBLISHED"
+        : wasPublished
           ? "PUBLISHED"
-          : wasPublished
-            ? "PUBLISHED"
-            : "DRAFT",
-        publishedAt:
-          shouldPublish && !wasPublished ? new Date() : article.publishedAt,
-        readTime,
-        reviewerId: shouldPublish ? session.user.id : article.reviewerId,
-        reviewedAt: shouldPublish ? new Date() : article.reviewedAt,
-        metaTitle: metaTitle || null,
-        metaDescription: metaDescription || null,
-        keywords: keywordsArray,
-        tags: {
-          create: tagIds.map((tagId) => ({ tagId })),
-        },
+          : "DRAFT",
+      publishedAt:
+        shouldPublish && !wasPublished ? new Date() : article.publishedAt,
+      readTime,
+      reviewerId: shouldPublish ? session.user.id : article.reviewerId,
+      reviewedAt: shouldPublish ? new Date() : article.reviewedAt,
+      metaTitle: metaTitle || null,
+      metaDescription: metaDescription || null,
+      keywords: keywordsArray,
+      tags: {
+        create: tagIds.map((tagId) => ({ tagId })),
       },
-    }),
-  ]);
+    },
+  });
 
   await createAdminLog({
     adminId: session.user.id,

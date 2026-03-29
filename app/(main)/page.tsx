@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic';
-
 import { HeroSection } from "./_components/hero-section";
 import { Skeleton } from "@/components/ui/skeleton";
 
