@@ -106,13 +106,17 @@ export async function createAcademic(
         status,
         publishedAt,
         createdById: session.user.id,
-        tags: {
-          create: (tagIds as string[]).map((id: string) => ({
-            tag: { connect: { id } },
-          })),
-        },
       },
     });
+    // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
+    if ((tagIds as string[]).length > 0) {
+      await prisma.academicTag.createMany({
+        data: (tagIds as string[]).map((tagId: string) => ({
+          academicInfoId: academicInfo.id,
+          tagId,
+        })),
+      });
+    }
 
     await createAdminLog({
       adminId: session.user.id,
@@ -182,6 +186,10 @@ export async function updateAcademic(
     const isPublishing =
       action === "publish" && existing.status !== "PUBLISHED";
 
+    // Neon HTTP adapter does not support transactions or nested writes — use sequential queries
+    await prisma.academicTag.deleteMany({
+      where: { academicInfoId: id, tagId: { in: tagsToDisconnect } },
+    });
     await prisma.academicInfo.update({
       where: { id },
       data: {
@@ -202,14 +210,13 @@ export async function updateAcademic(
         contactPhone: data.contactPhone || null,
         status: isPublishing ? "PUBLISHED" : existing.status,
         publishedAt: isPublishing ? new Date() : existing.publishedAt,
-        tags: {
-          deleteMany: tagsToDisconnect.map((tagId: string) => ({ tagId })),
-          create: tagsToConnect.map((tagId: string) => ({
-            tag: { connect: { id: tagId } },
-          })),
-        },
       },
     });
+    if (tagsToConnect.length > 0) {
+      await prisma.academicTag.createMany({
+        data: tagsToConnect.map((tagId: string) => ({ academicInfoId: id, tagId })),
+      });
+    }
 
     await createAdminLog({
       adminId: session.user.id,

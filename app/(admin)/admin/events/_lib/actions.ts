@@ -128,11 +128,14 @@ export async function createEvent(
       status: shouldPublish ? "PUBLISHED" : "DRAFT",
       publishedAt: shouldPublish ? new Date() : null,
       organizerId: session.user.id,
-      tags: {
-        create: tagIds.map((tagId) => ({ tagId })),
-      },
     },
   });
+  // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
+  if (tagIds.length > 0) {
+    await prisma.eventTag.createMany({
+      data: tagIds.map((tagId) => ({ eventId: event.id, tagId })),
+    });
+  }
 
   await createAdminLog({
     adminId: session.user.id,
@@ -214,7 +217,7 @@ export async function updateEvent(
   const shouldPublish = formData.get("action") === "publish";
   const wasPublished = existingEvent.status === "PUBLISHED";
 
-  // Neon HTTP adapter does not support transactions — use sequential awaits
+  // Neon HTTP adapter does not support transactions or nested writes — use sequential queries
   await prisma.eventTag.deleteMany({ where: { eventId: id } });
   await prisma.event.update({
     where: { id },
@@ -241,11 +244,13 @@ export async function updateEvent(
         shouldPublish && !wasPublished
           ? new Date()
           : existingEvent.publishedAt,
-      tags: {
-        create: tagIds.map((tagId) => ({ tagId })),
-      },
     },
   });
+  if (tagIds.length > 0) {
+    await prisma.eventTag.createMany({
+      data: tagIds.map((tagId) => ({ eventId: id, tagId })),
+    });
+  }
 
   await createAdminLog({
     adminId: session.user.id,

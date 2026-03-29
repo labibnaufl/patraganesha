@@ -115,11 +115,14 @@ export async function createArticle(
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
       keywords: keywordsArray,
-      tags: {
-        create: tagIds.map((tagId) => ({ tagId })),
-      },
     },
   });
+  // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
+  if (tagIds.length > 0) {
+    await prisma.articleTag.createMany({
+      data: tagIds.map((tagId) => ({ articleId: article.id, tagId })),
+    });
+  }
 
   await createAdminLog({
     adminId: session.user.id,
@@ -191,7 +194,7 @@ export async function updateArticle(
   const shouldPublish = formData.get("action") === "publish";
   const wasPublished = article.status === "PUBLISHED";
 
-  // Neon HTTP adapter does not support transactions — use sequential awaits
+  // Neon HTTP adapter does not support transactions or nested writes — use sequential queries
   await prisma.articleTag.deleteMany({ where: { articleId: id } });
   await prisma.article.update({
     where: { id },
@@ -215,11 +218,13 @@ export async function updateArticle(
       metaTitle: metaTitle || null,
       metaDescription: metaDescription || null,
       keywords: keywordsArray,
-      tags: {
-        create: tagIds.map((tagId) => ({ tagId })),
-      },
     },
   });
+  if (tagIds.length > 0) {
+    await prisma.articleTag.createMany({
+      data: tagIds.map((tagId) => ({ articleId: id, tagId })),
+    });
+  }
 
   await createAdminLog({
     adminId: session.user.id,
