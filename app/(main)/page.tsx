@@ -1,6 +1,8 @@
 import { HeroSection } from "./_components/hero-section";
 import { Skeleton } from "@/components/ui/skeleton";
 
+export const dynamic = "force-dynamic";
+
 function EventSkeleton() {
   return (
     <div className="w-full py-24 bg-background container mx-auto px-4">
