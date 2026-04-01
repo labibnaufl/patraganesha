@@ -108,13 +108,9 @@ export async function createAcademic(
         createdById: session.user.id,
       },
     });
-    // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
     if ((tagIds as string[]).length > 0) {
       await prisma.academicTag.createMany({
-        data: (tagIds as string[]).map((tagId: string) => ({
-          academicInfoId: academicInfo.id,
-          tagId,
-        })),
+        data: (tagIds as string[]).map((tagId: string) => ({ academicInfoId: academicInfo.id, tagId })),
       });
     }
 

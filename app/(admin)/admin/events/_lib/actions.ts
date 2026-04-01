@@ -130,7 +130,6 @@ export async function createEvent(
       organizerId: session.user.id,
     },
   });
-  // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
   if (tagIds.length > 0) {
     await prisma.eventTag.createMany({
       data: tagIds.map((tagId) => ({ eventId: event.id, tagId })),

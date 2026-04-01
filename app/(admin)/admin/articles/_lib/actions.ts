@@ -117,7 +117,6 @@ export async function createArticle(
       keywords: keywordsArray,
     },
   });
-  // Create tags separately — nested writes trigger internal transactions unsupported by Neon HTTP
   if (tagIds.length > 0) {
     await prisma.articleTag.createMany({
       data: tagIds.map((tagId) => ({ articleId: article.id, tagId })),

@@ -1,35 +1,31 @@
 import 'server-only'
-import { PrismaNeonHttp } from '@prisma/adapter-neon'
+import { neonConfig } from '@neondatabase/serverless'
+import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from './generated/prisma'
+import ws from 'ws'
+
+// Use WebSocket transport (PrismaNeon) instead of HTTP (PrismaNeonHttp).
+// The HTTP adapter does NOT support transactions of any kind — including those
+// triggered internally by Prisma for createMany, deleteMany, and nested writes.
+// PrismaNeon (WebSocket) fully supports transactions and is required for
+// any multi-step write operations (e.g. creating tags after an event/article).
+neonConfig.webSocketConstructor = ws
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined
 }
 
 function createPrismaClient() {
-  // Use DIRECT_URL or DATABASE_URL.
-  // PrismaNeonHttp uses stateless HTTP fetch instead of WebSockets.
-  // This eliminates the "Connection closed" error entirely because it 
-  // never opens a persistent connection that can be dropped.
-  const connectionString = process.env.DIRECT_URL ?? process.env.DATABASE_URL!
-  
-  // Create an HTTP-based adapter (no ws dependency required)
-  // We MUST use cache: 'no-store' because Next.js aggressively caches fetch requests.
-  // Without it, Next.js throws 500 errors on dynamic admin pages (RSC render crashes).
-  const adapter = new PrismaNeonHttp(connectionString, {
-    fetchOptions: {
-      cache: 'no-store',
-    },
-  })
+  const connectionString = process.env.DATABASE_URL!
+
+  const adapter = new PrismaNeon({ connectionString })
 
   const client = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
   })
 
-  // Add retry logic to handle Neon cold-start HTTP errors (e.g. 503 Gateway Timeout)
-  // Neon free tier suspends the DB after ~5 min of inactivity.
-  // The first request wakes it up but may fail — retry up to 3 times.
+  // Retry logic for Neon cold-start errors (free tier suspends after ~5 min)
   return client.$extends({
     query: {
       async $allOperations({ operation, model, args, query }) {
@@ -39,8 +35,7 @@ function createPrismaClient() {
             return await query(args)
           } catch (e: unknown) {
             const msg = e instanceof Error ? e.message : String(e)
-            
-            // Catch connection, socket, or HTTP gateway errors
+
             const isConnectionError =
               msg.includes('Connection closed') ||
               msg.includes('connection') ||
@@ -50,7 +45,6 @@ function createPrismaClient() {
               msg.includes('timeout')
 
             if (attempt < MAX_RETRIES - 1 && isConnectionError) {
-              // Wait before retrying: 500ms, 1500ms
               await new Promise((r) => setTimeout(r, 500 * (attempt + 1)))
               continue
             }
