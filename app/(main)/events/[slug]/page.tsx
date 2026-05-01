@@ -23,6 +23,19 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 
+// ISR: regenerate every hour
+export const revalidate = 3600;
+export const dynamicParams = true; // Generate new slugs on first visit
+
+// Pre-render all published events at build time
+export async function generateStaticParams() {
+  const events = await prisma.event.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true },
+  });
+  return events.map((e) => ({ slug: e.slug }));
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -210,7 +223,7 @@ export default async function EventDetailPage({
       {/* Article Content */}
       <div className="container mx-auto px-4 md:px-8 max-w-4xl py-10">
         {/* Registration Header Action */}
-        <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-2xl p-6 md:p-8 mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-2xl p-6 md:p-8 mb-10 flex flex-col gap-6 overflow-hidden">
           <div className="flex-1 w-full">
             <h2 className="text-xl font-bold mb-2">Status Pendaftaran</h2>
             {event.maxParticipants ? (
@@ -258,7 +271,7 @@ export default async function EventDetailPage({
               )}
           </div>
 
-          <div className="w-full md:w-auto shrink-0">
+          <div className="w-full">
             <EventRegistrationBox
               eventId={event.id}
               isLoggedIn={isLoggedIn}

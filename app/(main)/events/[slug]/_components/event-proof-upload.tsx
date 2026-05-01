@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useTransition } from "react";
+import { useState, useRef, useTransition, useCallback } from "react";
 import { Upload, X, ImageIcon, CheckCircle2, Loader2 } from "lucide-react";
 import { uploadAttendanceProofAction } from "../_lib/actions";
 
@@ -27,6 +27,7 @@ export function EventProofUpload({
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [caption, setCaption] = useState("");
   const [globalError, setGlobalError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const [isPending, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -50,7 +51,8 @@ export function EventProofUpload({
       try {
         const fd = new FormData();
         fd.append("file", file);
-        const res = await fetch("/api/attendance-proof/upload", {
+        fd.append("type", "proof");
+        const res = await fetch("/api/upload", {
           method: "POST",
           body: fd,
         });
@@ -84,6 +86,29 @@ export function EventProofUpload({
       }
     }
   }
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+      handleFiles(e.dataTransfer.files);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [remaining, caption, attendanceId],
+  );
 
   function removeFile(localId: string) {
     setFiles((prev) => prev.filter((f) => f.localId !== localId));
@@ -125,13 +150,26 @@ export function EventProofUpload({
       {remaining > 0 && (
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-border/60 hover:border-primary/40 rounded-2xl py-8 cursor-pointer transition-colors hover:bg-primary/5"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-2xl py-8 cursor-pointer transition-colors ${
+            isDragging
+              ? "border-primary bg-primary/10"
+              : "border-border/60 hover:border-primary/40 hover:bg-primary/5"
+          }`}
         >
-          <Upload className="w-6 h-6 text-muted-foreground" />
+          <Upload className={`w-6 h-6 ${isDragging ? "text-primary" : "text-muted-foreground"}`} />
           <p className="text-sm text-muted-foreground text-center">
-            Klik atau tarik foto ke sini
-            <br />
-            <span className="text-xs">JPG, PNG, WebP — maks 5MB per foto</span>
+            {isDragging ? (
+              <span className="text-primary font-medium">Lepaskan foto di sini</span>
+            ) : (
+              <>
+                Klik atau tarik foto ke sini
+                <br />
+                <span className="text-xs">JPG, PNG, WebP — maks 5MB per foto</span>
+              </>
+            )}
           </p>
           <input
             ref={fileInputRef}
@@ -146,20 +184,20 @@ export function EventProofUpload({
 
       {/* File previews */}
       {files.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 overflow-hidden">
           {files.map((f) => (
-            <div key={f.localId} className="relative group">
+            <div key={f.localId} className="relative group overflow-hidden rounded-xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={f.preview}
                 alt=""
-                className={`w-full aspect-square object-cover rounded-xl border transition-opacity ${
+                className={`w-full aspect-square object-cover border transition-opacity ${
                   f.status === "uploading" ? "opacity-50" : ""
                 }`}
               />
               {/* Overlay status */}
               {f.status === "uploading" && (
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/30">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                   <Loader2 className="w-5 h-5 text-white animate-spin" />
                 </div>
               )}
@@ -169,7 +207,7 @@ export function EventProofUpload({
                 </div>
               )}
               {f.status === "error" && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-red-900/60 px-2">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900/60 px-2">
                   <X className="w-4 h-4 text-white mb-1" />
                   <p className="text-[10px] text-white text-center leading-tight break-all">
                     {f.error}

@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR: regenerate data every hour
 
 export const metadata: Metadata = {
   title: "Events",

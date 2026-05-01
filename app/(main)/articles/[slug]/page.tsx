@@ -13,6 +13,19 @@ import { id as idLocale } from "date-fns/locale";
 import { Calendar, Clock, Eye, ChevronRight } from "lucide-react";
 import type { Metadata } from "next";
 
+// ISR: regenerate every hour
+export const revalidate = 3600;
+export const dynamicParams = true; // Generate new slugs on first visit
+
+// Pre-render all published articles at build time
+export async function generateStaticParams() {
+  const articles = await prisma.article.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true },
+  });
+  return articles.map((a) => ({ slug: a.slug }));
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({

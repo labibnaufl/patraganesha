@@ -21,6 +21,19 @@ import {
 } from "lucide-react";
 import type { Metadata } from "next";
 
+// ISR: regenerate every hour
+export const revalidate = 3600;
+export const dynamicParams = true; // Generate new slugs on first visit
+
+// Pre-render all published academic info at build time
+export async function generateStaticParams() {
+  const items = await prisma.academicInfo.findMany({
+    where: { status: "PUBLISHED" },
+    select: { slug: true },
+  });
+  return items.map((i) => ({ slug: i.slug }));
+}
+
 // ─── Metadata ────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({

@@ -4,7 +4,7 @@ import { AcademicCard } from "./_components/academic-card";
 import { AcademicFilters } from "./_components/academic-filters";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR: regenerate data every hour
 
 export const metadata: Metadata = {
   title: "Info Akademik | HMTM \"PATRA\" ITB",

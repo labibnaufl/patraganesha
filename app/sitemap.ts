@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR: regenerate every hour
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://patra-digital-hub.com";
