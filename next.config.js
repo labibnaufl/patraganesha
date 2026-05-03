@@ -21,11 +21,8 @@ const nextConfig = {
   // Static optimization settings
   staticPageGenerationTimeout: 180, // 3 minutes per page
   poweredByHeader: false,
-  // Optimize bundle
-  experimental: {
-    // Reduce serverless function size
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  // Optimize bundle - moved from experimental
+  serverExternalPackages: ['@prisma/client'],
   async headers() {
     return [
       {

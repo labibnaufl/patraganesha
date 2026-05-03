@@ -33,7 +33,7 @@ export async function generateStaticParams() {
       where: { status: "PUBLISHED" },
       select: { slug: true },
     });
-    return events.map((e) =>> ({ slug: e.slug }));
+    return events.map((e) => ({ slug: e.slug }));
   } catch (error) {
     console.error('Failed to generate static params for events:', error);
     return [];
