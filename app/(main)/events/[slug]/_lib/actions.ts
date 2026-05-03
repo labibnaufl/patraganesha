@@ -154,7 +154,7 @@ export async function registerForEventAction(eventId: string) {
   if (existing) return { error: "Kamu sudah terdaftar di event ini." };
 
   // Neon HTTP adapter does not support transactions — use sequential awaits
-  await prisma.eventAttendance.create({
+  const attendance = await prisma.eventAttendance.create({
     data: { userId, eventId, status: "REGISTERED" },
   });
   await prisma.event.update({
@@ -164,7 +164,14 @@ export async function registerForEventAction(eventId: string) {
 
   revalidatePath(`/events`);
   revalidatePath(`/events/${event.slug}`);
-  return { success: true };
+  return {
+    success: true,
+    attendance: {
+      id: attendance.id,
+      status: attendance.status,
+      proofs: [],
+    },
+  };
 }
 
 export async function cancelEventRegistrationAction(eventId: string) {
@@ -271,4 +278,24 @@ export async function uploadAttendanceProofAction(
 
   revalidatePath(`/events/${attendance.event.slug}`);
   return { success: true };
+}
+
+export async function getUserAttendanceAction(eventId: string) {
+  const session = await auth();
+  if (!session?.user?.id) return { error: "Unauthenticated" };
+  const userId = session.user.id;
+
+  const attendance = await prisma.eventAttendance.findUnique({
+    where: { userId_eventId: { userId, eventId } },
+    select: {
+      id: true,
+      status: true,
+      proofs: {
+        select: { id: true, url: true, thumbnailUrl: true },
+        orderBy: { uploadedAt: "asc" },
+      },
+    },
+  });
+
+  return { attendance };
 }

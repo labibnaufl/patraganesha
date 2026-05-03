@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { incrementViewAction } from "./_lib/actions";
 import { ArticleBody } from "./_components/article-body";
 import { ReactionBar } from "./_components/reaction-bar";
@@ -19,11 +18,17 @@ export const dynamicParams = true; // Generate new slugs on first visit
 
 // Pre-render all published articles at build time
 export async function generateStaticParams() {
-  const articles = await prisma.article.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true },
-  });
-  return articles.map((a) => ({ slug: a.slug }));
+  try {
+    const articles = await prisma.article.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true },
+    });
+    return articles.map((a) => ({ slug: a.slug }));
+  } catch (error) {
+    console.error('Failed to generate static params for articles:', error);
+    // Return empty array to prevent build failure
+    return [];
+  }
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -80,46 +85,31 @@ export default async function ArticleDetailPage({
 }) {
   const { slug } = await params;
 
-  // Fetch article and session in parallel
-  const [article, session] = await Promise.all([
-    prisma.article.findUnique({
-      where: { slug, status: "PUBLISHED" },
-      include: {
-        author: { select: { id: true, name: true, image: true } },
-        tags: { include: { tag: true } },
-        reactions: { select: { id: true, type: true, userId: true } },
-        bookmarks: { select: { id: true, userId: true } },
-        comments: {
-          orderBy: { createdAt: "desc" },
-          include: {
-            user: { select: { id: true, name: true, image: true } },
-          },
+  // Fetch article data only (no auth)
+  const article = await prisma.article.findUnique({
+    where: { slug, status: "PUBLISHED" },
+    include: {
+      author: { select: { id: true, name: true, image: true } },
+      tags: { include: { tag: true } },
+      reactions: { select: { id: true, type: true, userId: true } },
+      bookmarks: { select: { id: true, userId: true } },
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: { select: { id: true, name: true, image: true } },
         },
       },
-    }),
-    auth(),
-  ]);
+    },
+  });
 
   if (!article) notFound();
 
   // Increment view count (fire-and-forget)
   incrementViewAction(slug);
 
-  const userId = session?.user?.id ?? null;
-  const userRole = session?.user?.role ?? null;
-  const isLoggedIn = !!userId;
-
-  const likes = article.reactions.filter((r) => r.type === "LIKE").length;
-  const dislikes = article.reactions.filter((r) => r.type === "DISLIKE").length;
-  const userReaction = userId
-    ? ((article.reactions.find((r) => r.userId === userId)?.type as
-        | "LIKE"
-        | "DISLIKE"
-        | null) ?? null)
-    : null;
-  const isBookmarked = userId
-    ? article.bookmarks.some((b) => b.userId === userId)
-    : false;
+  // Pass raw reactions and bookmarks to client components
+  const reactions = article.reactions;
+  const bookmarks = article.bookmarks;
 
   // Related articles — same category, exclude current
   const related = await prisma.article.findMany({
@@ -272,11 +262,8 @@ export default async function ArticleDetailPage({
         <div className="mt-4">
           <ReactionBar
             articleId={article.id}
-            initialLikes={likes}
-            initialDislikes={dislikes}
-            userReaction={userReaction}
-            isBookmarked={isBookmarked}
-            isLoggedIn={isLoggedIn}
+            reactions={reactions}
+            bookmarks={bookmarks}
           />
         </div>
 
@@ -293,9 +280,6 @@ export default async function ArticleDetailPage({
               image: c.user.image,
             },
           }))}
-          currentUserId={userId}
-          currentUserRole={userRole}
-          isLoggedIn={isLoggedIn}
         />
 
         {/* Related Articles */}

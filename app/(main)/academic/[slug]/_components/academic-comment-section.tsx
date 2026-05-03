@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { useSession } from "next-auth/react";
 import {
   postAcademicCommentAction,
   deleteAcademicCommentAction,
@@ -25,18 +26,17 @@ type Comment = {
 type CommentSectionProps = {
   academicInfoId: string;
   initialComments: Comment[];
-  currentUserId: string | null;
-  currentUserRole: string | null;
-  isLoggedIn: boolean;
 };
 
 export function AcademicCommentSection({
   academicInfoId,
   initialComments,
-  currentUserId,
-  currentUserRole,
-  isLoggedIn,
 }: CommentSectionProps) {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
+  const currentUserId = session?.user?.id ?? null;
+  const currentUserRole = session?.user?.role ?? null;
+
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);

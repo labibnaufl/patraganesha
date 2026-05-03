@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { postCommentAction, deleteCommentAction } from "../_lib/actions";
 import Image from "next/image";
 import { format } from "date-fns";
@@ -10,10 +11,9 @@ import Link from "next/link";
 
 type Comment = {
   id: string;
-  content: string; // ← correct field name per schema
+  content: string;
   createdAt: Date;
   user: {
-    // ← correct relation name per schema
     id: string;
     name: string | null;
     image: string | null;
@@ -23,18 +23,17 @@ type Comment = {
 type CommentSectionProps = {
   articleId: string;
   initialComments: Comment[];
-  currentUserId: string | null;
-  currentUserRole: string | null;
-  isLoggedIn: boolean;
 };
 
 export function CommentSection({
   articleId,
   initialComments,
-  currentUserId,
-  currentUserRole,
-  isLoggedIn,
 }: CommentSectionProps) {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
+  const currentUserId = session?.user?.id ?? null;
+  const currentUserRole = session?.user?.role ?? null;
+
   const [comments, setComments] = useState<Comment[]>(initialComments);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);

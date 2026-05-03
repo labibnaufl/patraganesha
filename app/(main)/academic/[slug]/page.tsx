@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { incrementAcademicViewAction } from "./_lib/actions";
 import { AcademicReactionBar } from "./_components/academic-reaction-bar";
 import { AcademicCommentSection } from "./_components/academic-comment-section";
@@ -27,11 +26,16 @@ export const dynamicParams = true; // Generate new slugs on first visit
 
 // Pre-render all published academic info at build time
 export async function generateStaticParams() {
-  const items = await prisma.academicInfo.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true },
-  });
-  return items.map((i) => ({ slug: i.slug }));
+  try {
+    const items = await prisma.academicInfo.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true },
+    });
+    return items.map((i) => ({ slug: i.slug }));
+  } catch (error) {
+    console.error('Failed to generate static params for academic:', error);
+    return [];
+  }
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -86,48 +90,31 @@ export default async function AcademicDetailPage({
 }) {
   const { slug } = await params;
 
-  // Fetch info and session in parallel
-  const [academic, session] = await Promise.all([
-    prisma.academicInfo.findUnique({
-      where: { slug, status: "PUBLISHED" },
-      include: {
-        createdBy: { select: { name: true } },
-        tags: { include: { tag: true } },
-        reactions: { select: { id: true, type: true, userId: true } },
-        bookmarks: { select: { id: true, userId: true } },
-        comments: {
-          orderBy: { createdAt: "desc" },
-          include: {
-            user: { select: { id: true, name: true, image: true } },
-          },
+  // Fetch info data only (no auth)
+  const academic = await prisma.academicInfo.findUnique({
+    where: { slug, status: "PUBLISHED" },
+    include: {
+      createdBy: { select: { name: true } },
+      tags: { include: { tag: true } },
+      reactions: { select: { id: true, type: true, userId: true } },
+      bookmarks: { select: { id: true, userId: true } },
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: { select: { id: true, name: true, image: true } },
         },
       },
-    }),
-    auth(),
-  ]);
+    },
+  });
 
   if (!academic) notFound();
 
   // Increment view count (fire-and-forget)
   incrementAcademicViewAction(slug);
 
-  const userId = session?.user?.id ?? null;
-  const userRole = session?.user?.role ?? null;
-  const isLoggedIn = !!userId;
-
-  const likes = academic.reactions.filter((r) => r.type === "LIKE").length;
-  const dislikes = academic.reactions.filter(
-    (r) => r.type === "DISLIKE",
-  ).length;
-  const userReaction = userId
-    ? ((academic.reactions.find((r) => r.userId === userId)?.type as
-        | "LIKE"
-        | "DISLIKE"
-        | null) ?? null)
-    : null;
-  const isBookmarked = userId
-    ? academic.bookmarks.some((b) => b.userId === userId)
-    : false;
+  // Pass raw reactions and bookmarks to client components
+  const reactions = academic.reactions;
+  const bookmarks = academic.bookmarks;
 
   const isUpcoming = academic.deadline
     ? isFuture(new Date(academic.deadline))
@@ -401,11 +388,8 @@ export default async function AcademicDetailPage({
         <div className="mt-4">
           <AcademicReactionBar
             academicInfoId={academic.id}
-            initialLikes={likes}
-            initialDislikes={dislikes}
-            userReaction={userReaction}
-            isBookmarked={isBookmarked}
-            isLoggedIn={isLoggedIn}
+            reactions={reactions}
+            bookmarks={bookmarks}
           />
         </div>
 
@@ -422,9 +406,6 @@ export default async function AcademicDetailPage({
               image: c.user.image,
             },
           }))}
-          currentUserId={userId}
-          currentUserRole={userRole}
-          isLoggedIn={isLoggedIn}
         />
       </div>
     </article>

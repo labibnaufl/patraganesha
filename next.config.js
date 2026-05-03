@@ -18,6 +18,14 @@ const nextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" },
     ],
   },
+  // Static optimization settings
+  staticPageGenerationTimeout: 180, // 3 minutes per page
+  poweredByHeader: false,
+  // Optimize bundle
+  experimental: {
+    // Reduce serverless function size
+    serverComponentsExternalPackages: ['@prisma/client'],
+  },
   async headers() {
     return [
       {

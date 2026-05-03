@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useSession } from "next-auth/react";
 import {
   ThumbsUp,
   ThumbsDown,
@@ -14,23 +15,47 @@ import {
 } from "../_lib/actions";
 import Link from "next/link";
 
+type Reaction = {
+  id: string;
+  type: string;
+  userId: string;
+};
+
+type Bookmark = {
+  id: string;
+  userId: string;
+};
+
 type ReactionBarProps = {
   academicInfoId: string;
-  initialLikes: number;
-  initialDislikes: number;
-  userReaction: "LIKE" | "DISLIKE" | null;
-  isBookmarked: boolean;
-  isLoggedIn: boolean;
+  reactions: Reaction[];
+  bookmarks: Bookmark[];
 };
 
 export function AcademicReactionBar({
   academicInfoId,
-  initialLikes,
-  initialDislikes,
-  userReaction,
-  isBookmarked,
-  isLoggedIn,
+  reactions,
+  bookmarks,
 }: ReactionBarProps) {
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
+  const userId = session?.user?.id ?? null;
+
+  // Compute likes/dislikes from reactions prop
+  const initialLikes = reactions.filter((r) => r.type === "LIKE").length;
+  const initialDislikes = reactions.filter((r) => r.type === "DISLIKE").length;
+
+  // Compute user-specific states
+  const userReaction = userId
+    ? ((reactions.find((r) => r.userId === userId)?.type as
+        | "LIKE"
+        | "DISLIKE"
+        | null) ?? null)
+    : null;
+  const isBookmarked = userId
+    ? bookmarks.some((b) => b.userId === userId)
+    : false;
+
   const [likes, setLikes] = useState(initialLikes);
   const [dislikes, setDislikes] = useState(initialDislikes);
   const [reaction, setReaction] = useState<"LIKE" | "DISLIKE" | null>(

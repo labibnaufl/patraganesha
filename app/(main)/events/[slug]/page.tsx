@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
 import { incrementEventViewAction } from "./_lib/actions";
 import { EventReactionBar } from "./_components/event-reaction-bar";
 import { EventCommentSection } from "./_components/event-comment-section";
@@ -29,11 +28,16 @@ export const dynamicParams = true; // Generate new slugs on first visit
 
 // Pre-render all published events at build time
 export async function generateStaticParams() {
-  const events = await prisma.event.findMany({
-    where: { status: "PUBLISHED" },
-    select: { slug: true },
-  });
-  return events.map((e) => ({ slug: e.slug }));
+  try {
+    const events = await prisma.event.findMany({
+      where: { status: "PUBLISHED" },
+      select: { slug: true },
+    });
+    return events.map((e) =>> ({ slug: e.slug }));
+  } catch (error) {
+    console.error('Failed to generate static params for events:', error);
+    return [];
+  }
 }
 
 // ─── Metadata ────────────────────────────────────────────────────────────────
@@ -82,52 +86,33 @@ export default async function EventDetailPage({
 }) {
   const { slug } = await params;
 
-  // Fetch event, session, and user attendance in parallel
-  const [event, session] = await Promise.all([
-    prisma.event.findUnique({
-      where: { slug, status: "PUBLISHED" },
-      include: {
-        organizer: { select: { name: true } },
-        tags: { include: { tag: true } },
-        reactions: { select: { id: true, type: true, userId: true } },
-        bookmarks: { select: { id: true, userId: true } },
-        comments: {
-          orderBy: { createdAt: "desc" },
-          include: {
-            user: { select: { id: true, name: true, image: true } },
-          },
+  // Fetch event data only (no auth)
+  const event = await prisma.event.findUnique({
+    where: { slug, status: "PUBLISHED" },
+    include: {
+      organizer: { select: { name: true } },
+      tags: { include: { tag: true } },
+      reactions: { select: { id: true, type: true, userId: true } },
+      bookmarks: { select: { id: true, userId: true } },
+      comments: {
+        orderBy: { createdAt: "desc" },
+        include: {
+          user: { select: { id: true, name: true, image: true } },
         },
       },
-    }),
-    auth(),
-  ]);
+    },
+  });
 
   if (!event) notFound();
-
-  const userId = session?.user?.id ?? null;
-
-  // Fetch user's attendance after we have userId and eventId
-  const userAttendance = userId
-    ? await prisma.eventAttendance.findUnique({
-        where: { userId_eventId: { userId, eventId: event.id } },
-        select: {
-          id: true,
-          status: true,
-          proofs: {
-            select: { id: true, url: true, thumbnailUrl: true },
-            orderBy: { uploadedAt: "asc" },
-          },
-        },
-      })
-    : null;
 
   // Increment view count (fire-and-forget, void prevents unhandled promise warning)
   void incrementEventViewAction(slug);
 
-  const userRole = session?.user?.role ?? null;
-  const isLoggedIn = !!userId;
+  // Pass raw reactions and bookmarks to client components
+  const reactions = event.reactions;
+  const bookmarks = event.bookmarks;
 
-  // Registration state
+  // Registration state (computed server-side, no user-specific data)
   const now = new Date();
   const deadlinePassed = event.registrationDeadline
     ? now > new Date(event.registrationDeadline)
@@ -137,18 +122,6 @@ export default async function EventDetailPage({
     : false;
   const eventPast = now > new Date(event.startDate);
   const registrationOpen = !deadlinePassed && !isFull && !eventPast;
-
-  const likes = event.reactions.filter((r) => r.type === "LIKE").length;
-  const dislikes = event.reactions.filter((r) => r.type === "DISLIKE").length;
-  const userReaction = userId
-    ? ((event.reactions.find((r) => r.userId === userId)?.type as
-        | "LIKE"
-        | "DISLIKE"
-        | null) ?? null)
-    : null;
-  const isBookmarked = userId
-    ? event.bookmarks.some((b) => b.userId === userId)
-    : false;
 
   const isUpcoming = isFuture(new Date(event.startDate));
   const daysUntil = differenceInDays(new Date(event.startDate), new Date());
@@ -274,32 +247,12 @@ export default async function EventDetailPage({
           <div className="w-full">
             <EventRegistrationBox
               eventId={event.id}
-              isLoggedIn={isLoggedIn}
               registrationOpen={registrationOpen}
               isFull={isFull}
               deadlinePassed={deadlinePassed}
               eventPast={eventPast}
               requireProof={event.requireProof}
               maxProofsPerUser={event.maxProofsPerUser}
-              userAttendance={
-                userAttendance
-                  ? {
-                      id: userAttendance.id,
-                      status: userAttendance.status as
-                        | "ABSEN"
-                        | "REGISTERED"
-                        | "ATTENDING"
-                        | "ATTENDED"
-                        | "REJECTED"
-                        | "CANCELLED",
-                      proofs: userAttendance.proofs.map((p) => ({
-                        id: p.id,
-                        url: p.url,
-                        thumbnailUrl: p.thumbnailUrl,
-                      })),
-                    }
-                  : null
-              }
             />
           </div>
         </div>
@@ -437,11 +390,8 @@ export default async function EventDetailPage({
         <div className="mt-4">
           <EventReactionBar
             eventId={event.id}
-            initialLikes={likes}
-            initialDislikes={dislikes}
-            userReaction={userReaction}
-            isBookmarked={isBookmarked}
-            isLoggedIn={isLoggedIn}
+            reactions={reactions}
+            bookmarks={bookmarks}
           />
         </div>
 
@@ -458,9 +408,6 @@ export default async function EventDetailPage({
               image: c.user.image,
             },
           }))}
-          currentUserId={userId}
-          currentUserRole={userRole}
-          isLoggedIn={isLoggedIn}
         />
       </div>
     </article>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
   CheckCircle2,
   Clock,
@@ -14,6 +15,7 @@ import {
 import {
   registerForEventAction,
   cancelEventRegistrationAction,
+  getUserAttendanceAction,
 } from "../_lib/actions";
 import Link from "next/link";
 import { EventProofUpload } from "./event-proof-upload";
@@ -34,14 +36,12 @@ type UserAttendance = {
 
 type Props = {
   eventId: string;
-  isLoggedIn: boolean;
   registrationOpen: boolean; // deadline not passed AND event not full
   isFull: boolean;
   deadlinePassed: boolean;
   eventPast: boolean; // startDate < now
   requireProof: boolean;
   maxProofsPerUser: number;
-  userAttendance: UserAttendance;
 };
 
 const STATUS_CONFIG: Record<
@@ -74,19 +74,47 @@ const STATUS_CONFIG: Record<
 
 export function EventRegistrationBox({
   eventId,
-  isLoggedIn,
   registrationOpen,
   isFull,
   deadlinePassed,
   eventPast,
   requireProof,
   maxProofsPerUser,
-  userAttendance,
 }: Props) {
+  const { data: session, status: sessionStatus } = useSession();
+  const isLoggedIn = sessionStatus === "authenticated";
+
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showProofUpload, setShowProofUpload] = useState(false);
+  const [userAttendance, setUserAttendance] = useState<UserAttendance>(null);
+  const [isLoadingAttendance, setIsLoadingAttendance] = useState(true);
+
+  // Fetch user attendance on client side
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setIsLoadingAttendance(false);
+      return;
+    }
+
+    async function fetchAttendance() {
+      setIsLoadingAttendance(true);
+      const result = await getUserAttendanceAction(eventId);
+      if (result?.attendance) {
+        setUserAttendance({
+          id: result.attendance.id,
+          status: result.attendance.status as AttendanceStatus,
+          proofs: result.attendance.proofs,
+        });
+      } else {
+        setUserAttendance(null);
+      }
+      setIsLoadingAttendance(false);
+    }
+
+    fetchAttendance();
+  }, [eventId, isLoggedIn]);
 
   const status: AttendanceStatus = userAttendance?.status ?? "ABSEN";
   const statusConfig = STATUS_CONFIG[status];
@@ -102,7 +130,15 @@ export function EventRegistrationBox({
     setError(null);
     startTransition(async () => {
       const result = await registerForEventAction(eventId);
-      if (result?.error) setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.attendance) {
+        setUserAttendance({
+          id: result.attendance.id,
+          status: result.attendance.status as AttendanceStatus,
+          proofs: result.attendance.proofs,
+        });
+      }
     });
   }
 
@@ -110,8 +146,16 @@ export function EventRegistrationBox({
     setError(null);
     startTransition(async () => {
       const result = await cancelEventRegistrationAction(eventId);
-      if (result?.error) setError(result.error);
-      setShowCancelConfirm(false);
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        setUserAttendance({
+          id: userAttendance?.id ?? "",
+          status: "CANCELLED",
+          proofs: userAttendance?.proofs ?? [],
+        });
+        setShowCancelConfirm(false);
+      }
     });
   }
 
@@ -130,6 +174,15 @@ export function EventRegistrationBox({
           <LogIn className="w-4 h-4" />
           Login Sekarang
         </Link>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoadingAttendance) {
+    return (
+      <div className="flex items-center justify-center py-4">
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
   }
@@ -236,7 +289,19 @@ export function EventRegistrationBox({
             attendanceId={userAttendance.id}
             currentProofCount={userAttendance.proofs.length}
             maxProofs={maxProofsPerUser}
-            onSuccess={() => setShowProofUpload(false)}
+            onSuccess={() => {
+              setShowProofUpload(false);
+              // Refresh attendance data
+              getUserAttendanceAction(eventId).then((result) => {
+                if (result?.attendance) {
+                  setUserAttendance({
+                    id: result.attendance.id,
+                    status: result.attendance.status as AttendanceStatus,
+                    proofs: result.attendance.proofs,
+                  });
+                }
+              });
+            }}
           />
         )}
 
@@ -251,7 +316,7 @@ export function EventRegistrationBox({
       <div className="flex items-center justify-between flex-wrap gap-3">
         <span className="inline-flex items-center gap-2 text-sm text-gray-500">
           <XCircle className="w-4 h-4" />
-          Pendaftaranmu dibatalkan.{" "}
+          Pendaftaranmu dibatarkan.{" "}
           {registrationOpen ? "Kamu bisa mendaftar lagi." : ""}
         </span>
         {registrationOpen && (
