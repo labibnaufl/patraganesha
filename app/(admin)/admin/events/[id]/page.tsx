@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "../_lib/require-admin";
 import { updateEvent } from "../_lib/actions";
 import { EventForm } from "../_components/event-form";
 import { notFound } from "next/navigation";
@@ -17,7 +16,6 @@ export default async function EditEventPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
   const { id } = await params;
 
   const [event, tags] = await Promise.all([

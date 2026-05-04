@@ -44,8 +44,9 @@ function maybePruneRateLimit() {
 // ---------------------------------------------------------------------------
 const { auth } = NextAuth(authConfig);
 
-export const proxy = auth((req: NextRequest & { auth?: unknown }) => {
+export const proxy = auth((req) => {
   const pathname = req.nextUrl.pathname;
+  const session = (req as unknown as { auth?: { user?: { role?: string } } }).auth;
 
   // Apply rate limiting only to auth-related endpoints
   const isAuthEndpoint =
@@ -75,7 +76,23 @@ export const proxy = auth((req: NextRequest & { auth?: unknown }) => {
     }
   }
 
-  // NextAuth's auth callback handles the rest (redirect logic lives in auth.config.ts)
+  // Protect admin routes
+  if (pathname.startsWith("/admin")) {
+    if (!session?.user) {
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+    if (session.user.role !== "SUPER_ADMIN" && session.user.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", req.nextUrl));
+    }
+  }
+
+  // Protect dashboard
+  if (pathname.startsWith("/dashboard")) {
+    if (!session?.user) {
+      return NextResponse.redirect(new URL("/login", req.nextUrl));
+    }
+  }
+
   return NextResponse.next();
 });
 

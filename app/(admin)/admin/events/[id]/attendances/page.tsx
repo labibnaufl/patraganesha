@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "../../../_lib/require-admin";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import Link from "next/link";
@@ -18,7 +17,6 @@ export default async function EventAttendancesPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
   const { id } = await params;
 
   const event = await prisma.event.findUnique({

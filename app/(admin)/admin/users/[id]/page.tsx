@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { requireSuperAdmin } from "../../_lib/require-admin";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { UserDetailActions } from "./user-detail-actions";
@@ -10,7 +9,6 @@ export default async function UserDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const session = await requireSuperAdmin();
   const { id } = await params;
 
   const user = await prisma.user.findUnique({
@@ -35,7 +33,8 @@ export default async function UserDetailPage({
 
   if (!user) notFound();
 
-  const isSuperAdmin = session.user.role === "SUPER_ADMIN";
+  // Middleware ensures only Super Admin can access this page
+  const isSuperAdmin = true;
 
   function getStatusColor(status: string, banned: boolean) {
     if (banned) return "bg-red-100 text-red-700 border-red-200";

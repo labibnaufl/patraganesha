@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "../_lib/require-admin";
 import { updateArticle } from "../_lib/actions";
 import { ArticleForm } from "../_components/article-form";
 import { notFound } from "next/navigation";
@@ -11,7 +10,6 @@ export default async function EditArticlePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  await requireAdmin();
   const { id } = await params;
 
   const [article, tags] = await Promise.all([
