@@ -1,7 +1,37 @@
 import { Metadata } from "next";
 import { ProfileHero } from "../_components/profile-hero";
-import { VisionMission } from "../_components/vision-mission";
-import { PatraMembers } from "../_components/patra-member";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const VisionMission = dynamic(
+  () =>
+    import("../_components/vision-mission").then((m) => m.VisionMission),
+  {
+    loading: () => (
+      <div className="w-full py-24 container mx-auto px-4">
+        <Skeleton className="h-64 w-full rounded-3xl" />
+      </div>
+    ),
+  }
+);
+
+const PatraMembers = dynamic(
+  () =>
+    import("../_components/patra-member").then((m) => m.PatraMembers),
+  {
+    loading: () => (
+      <div className="w-full py-24 container mx-auto px-4">
+        <Skeleton className="h-12 w-64 mb-4" />
+        <Skeleton className="h-8 w-96 mb-8" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="aspect-3/4 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    ),
+  }
+);
 
 export const metadata: Metadata = {
   title: "Badan Pengurus | HMTM \"PATRA\" ITB",

@@ -7,12 +7,13 @@ export function CtaSection() {
   return (
     <section className="w-full py-32 relative overflow-hidden bg-brand-primary text-white flex items-center justify-center min-h-[60vh]">
       {/* Background Graphic - Right Side */}
-      <div className="absolute right-0 bottom-0 h-full w-[40%] sm:w-[50%] md:w-[45%] lg:w-[40%] pointer-events-none z-0 opacity-40 sm:opacity-70 md:opacity-90">
+      <div className="absolute right-0 bottom-0 h-full w-[60%] sm:w-[65%] md:w-[60%] lg:w-[55%] pointer-events-none z-0 opacity-20 sm:opacity-30 md:opacity-40">
         <Image
-          src="/images/Ganesha.jpg"
+          src="/images/GaneshaLogo.png"
           alt="Ganesha Illustration"
           fill
-          className="object-contain object-bottom md:object-bottom-right opacity-90"
+          sizes="(max-width: 640px) 60vw, 55vw"
+          className="object-contain object-bottom md:object-bottom-right"
         />
       </div>
 

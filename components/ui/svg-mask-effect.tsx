@@ -57,12 +57,12 @@ export const MaskContainer = ({
     return (
       <div
         className={cn(
-          "relative flex items-center justify-center bg-slate-900",
+          "relative flex items-center justify-center bg-white",
           className,
         )}
       >
-        <div className="relative z-20 flex h-full w-full items-center justify-center">
-          {revealText}
+        <div className="relative z-20 flex h-full w-full items-center justify-center text-4xl font-bold text-foreground">
+          {children}
         </div>
       </div>
     );

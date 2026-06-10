@@ -59,7 +59,7 @@ export function TestimonialSection() {
                     alt={`Foto ${testimonial.name}`}
                     fill
                     className="object-cover"
-                    unoptimized
+                    sizes="96px"
                   />
                 </div>
 

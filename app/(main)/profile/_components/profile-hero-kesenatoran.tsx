@@ -52,6 +52,7 @@ export function ProfileHeroKesenatoran({
                   src="/images/logo.png"
                   alt="PATRA Logo"
                   fill
+                  sizes="64px"
                   className="object-contain"
                 />
               </div>
@@ -66,6 +67,7 @@ export function ProfileHeroKesenatoran({
                   src="/images/image3.png"
                   alt="Ganesha Logo"
                   fill
+                  sizes="64px"
                   className="object-contain mix-blend-multiply"
                 />
               </div>

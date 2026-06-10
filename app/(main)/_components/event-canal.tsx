@@ -1,6 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { Badge } from "@/components/ui/badge";
-import { EventCarousel } from "./event-carousel";
+import dynamic from "next/dynamic";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const EventCarousel = dynamic(
+  () => import("./event-carousel").then((m) => m.EventCarousel),
+  {
+    loading: () => <Skeleton className="h-125 rounded-[2.5rem] w-full" />,
+  }
+);
 import Link from "next/link";
 import { CalendarX } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -87,7 +87,7 @@ function LandscapeToPortrait({ src, alt }: { src: string; alt: string }) {
         src={src}
         alt={alt}
         fill
-        unoptimized
+        sizes="(max-width: 640px) 50vw, 250px"
         className="pointer-events-none object-cover object-center"
         style={{ imageOrientation: "from-image" }}
       />
@@ -137,7 +137,7 @@ export function PatraMembersKesenatoran() {
                   src={member.image}
                   alt={member.name}
                   fill
-                  unoptimized
+                  sizes="(max-width: 640px) 50vw, 250px"
                   className="object-cover object-top"
                   style={{ imageOrientation: "from-image" }}
                 />
@@ -171,7 +171,7 @@ export function PatraMembersKesenatoran() {
                   src={member.image}
                   alt={member.name}
                   fill
-                  unoptimized
+                  sizes="(max-width: 640px) 50vw, 250px"
                   className="pointer-events-none object-cover object-top"
                   style={{ imageOrientation: "from-image" }}
                 />

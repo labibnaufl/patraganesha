@@ -48,6 +48,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
                   src="/images/logo.png"
                   alt="PATRA Logo"
                   fill
+                  sizes="64px"
                   className="object-contain"
                 />
               </div>
@@ -63,6 +64,7 @@ export function ProfileHero({ children }: { children?: React.ReactNode }) {
                   src="/images/image3.png"
                   alt="Ganesha Logo"
                   fill
+                  sizes="64px"
                   className="object-contain mix-blend-multiply"
                 />
               </div>

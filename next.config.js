@@ -12,10 +12,13 @@ const securityHeaders = [
 
 const nextConfig = {
   images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 2678400, // 31 days — static images rarely change
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "i.pravatar.cc" },
     ],
   },
   // Static optimization settings
