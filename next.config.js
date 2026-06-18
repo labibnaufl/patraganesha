@@ -11,6 +11,22 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  // Redirect vercel.app to custom domain
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'patraganesha.vercel.app',
+          },
+        ],
+        destination: 'https://patraganesha.org/:path*',
+        permanent: true,
+      },
+    ];
+  },
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2678400, // 31 days — static images rarely change

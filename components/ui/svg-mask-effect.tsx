@@ -53,6 +53,7 @@ export const MaskContainer = ({
   const maskSize = effectivelyRevealed ? revealSize : size;
 
   // Touch devices: render a plain container with the revealText prominent
+  // (children is the hover-prompt text, irrelevant on touch screens)
   if (isTouchDevice) {
     return (
       <div
@@ -61,8 +62,8 @@ export const MaskContainer = ({
           className,
         )}
       >
-        <div className="relative z-20 flex h-full w-full items-center justify-center text-4xl font-bold text-foreground">
-          {children}
+        <div className="relative z-20 flex h-full w-full items-center justify-center">
+          {revealText}
         </div>
       </div>
     );

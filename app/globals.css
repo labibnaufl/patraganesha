@@ -51,7 +51,7 @@
 }
 
 @utility text-patra-stroke {
-  -webkit-text-stroke: 4px var(--color-brand-primary);
+  -webkit-text-stroke: clamp(2px, 0.4vw + 1px, 4px) var(--color-brand-primary);
   paint-order: stroke fill;
 }
 
